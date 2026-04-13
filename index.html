@@ -2,149 +2,278 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Spotify Premium Store</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Spotify Premium</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
         :root {
-            --tg-bg: var(--tg-theme-bg-color, #121212);
-            --tg-text: var(--tg-theme-text-color, #ffffff);
-            --tg-hint: var(--tg-theme-hint-color, #a8a8a8);
-            --accent: #b5e61d;
-            --accent-soft: rgba(181, 230, 29, 0.1);
-            --card-bg: var(--tg-theme-secondary-bg-color, #1e1e1e);
+            /* Переменные Telegram для адаптивности */
+            --bg-color: var(--tg-theme-bg-color, #0f0f0f);
+            --sec-bg-color: var(--tg-theme-secondary-bg-color, #1a1a1a);
+            --text-color: var(--tg-theme-text-color, #ffffff);
+            --hint-color: var(--tg-theme-hint-color, #888888);
+            
+            /* Наш лаймово-жёлтый стиль */
+            --accent: #d4ff00; 
+            --accent-dark: #b5e61d;
+            --accent-glass: rgba(212, 255, 0, 0.1);
         }
-        body {
-            margin: 0; font-family: -apple-system, sans-serif;
-            background: var(--tg-bg); color: var(--tg-text);
-            padding: 16px; overflow-x: hidden;
-        }
-        .step { display: none; animation: fadeIn 0.3s ease; }
-        .step.active { display: block; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* Дизайн карточек */
-        .card {
-            background: var(--card-bg); border-radius: 16px; padding: 20px;
-            margin-bottom: 12px; border: 1px solid rgba(255,255,255,0.05);
-            cursor: pointer; transition: 0.2s;
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            -webkit-user-select: none;
+            overflow-x: hidden;
         }
-        .card:active { transform: scale(0.98); }
-        .card.selected { border-color: var(--accent); background: var(--accent-soft); }
-        .price { color: var(--accent); font-weight: bold; font-size: 1.2em; }
+
+        .container {
+            max-width: 500px;
+            margin: 0 auto;
+            padding: 16px;
+            padding-bottom: 40px;
+        }
+
+        .step { display: none; }
+        .step.active { display: block; animation: slideIn 0.3s ease-out; }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(20px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        h2 { font-size: 24px; font-weight: 800; margin-bottom: 8px; color: var(--accent); }
+        p { color: var(--hint-color); font-size: 14px; margin-bottom: 20px; }
+
+        /* Карточки тарифов */
+        .card {
+            background: var(--sec-bg-color);
+            border: 1px solid rgba(255,255,255,0.05);
+            border-radius: 20px;
+            padding: 16px;
+            margin-bottom: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: 0.2s;
+            cursor: pointer;
+        }
+
+        .card:active { transform: scale(0.97); }
+        .card.popular { border: 2px solid var(--accent); background: var(--accent-glass); }
+
+        .plan-info .name { font-weight: 700; font-size: 16px; display: block; }
+        .plan-info .desc { font-size: 12px; color: var(--hint-color); }
+        .plan-price { font-weight: 800; font-size: 18px; color: var(--accent); }
 
         /* Поля ввода */
+        .input-group { margin-bottom: 20px; }
         input {
-            width: 100%; padding: 14px; border-radius: 12px; border: 1px solid #333;
-            background: var(--tg-bg); color: #fff; margin: 10px 0; box-sizing: border-box;
+            width: 100%;
+            padding: 16px;
+            border-radius: 14px;
+            border: 2px solid var(--sec-bg-color);
+            background: var(--sec-bg-color);
+            color: var(--text-color);
+            font-size: 16px;
+            outline: none;
+            box-sizing: border-box;
+            transition: 0.3s;
         }
+        input:focus { border-color: var(--accent); }
+
+        /* Кнопки */
         .btn {
-            width: 100%; padding: 16px; border-radius: 12px; border: none;
-            background: var(--accent); color: #000; font-weight: bold;
-            font-size: 16px; cursor: pointer; margin-top: 10px;
+            background: var(--accent);
+            color: #000;
+            border: none;
+            width: 100%;
+            padding: 18px;
+            border-radius: 16px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: 0.2s;
         }
+        .btn:active { transform: scale(0.96); opacity: 0.9; }
+        .btn-secondary { background: transparent; color: var(--accent); border: 1px solid var(--accent); margin-top: 10px; }
+
+        /* Копирование реквизитов */
+        .copy-box {
+            background: var(--sec-bg-color);
+            padding: 16px;
+            border-radius: 14px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 15px 0;
+            border: 1px dashed var(--accent);
+            cursor: pointer;
+        }
+        .copy-box code { font-family: monospace; font-size: 16px; font-weight: bold; }
+        .copy-hint { font-size: 10px; color: var(--accent); text-transform: uppercase; }
 
         /* Кликер */
-        #game-area {
-            text-align: center; padding: 30px; background: var(--card-bg); border-radius: 20px;
+        .game-zone { text-align: center; padding-top: 20px; }
+        .vinyl-container {
+            width: 200px;
+            height: 200px;
+            margin: 0 auto;
+            position: relative;
+            cursor: pointer;
         }
-        .disc {
-            width: 150px; height: 150px; background: var(--accent);
-            border-radius: 50%; margin: 20px auto; display: flex;
-            align-items: center; justify-content: center; font-size: 40px;
-            box-shadow: 0 0 20px var(--accent-soft); cursor: pointer;
-            transition: 0.1s; user-select: none;
+        .vinyl {
+            width: 100%; height: 100%;
+            background: radial-gradient(circle, #222 30%, #000 70%);
+            border-radius: 50%;
+            border: 5px solid #1a1a1a;
+            animation: spin 5s linear infinite;
+            display: flex; justify-content: center; align-items: center;
+            box-shadow: 0 0 30px rgba(0,0,0,0.5);
         }
-        .disc:active { transform: scale(0.9); }
+        .vinyl::after { content: ''; width: 40px; height: 40px; background: var(--accent); border-radius: 50%; border: 4px solid #000; }
+        @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+        .score { font-size: 40px; font-weight: 900; color: var(--accent); margin-top: 20px; }
+
+        /* Уведомление */
+        #toast {
+            position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%);
+            background: var(--accent); color: #000; padding: 10px 20px;
+            border-radius: 20px; font-weight: bold; font-size: 12px;
+            opacity: 0; transition: 0.3s;
+        }
     </style>
 </head>
 <body>
 
-    <div id="step-plans" class="step active">
-        <h3>Выберите тариф</h3>
-        <div class="card" onclick="selectPlan('individual', '1m', 220, 'Индивидуальная 1 мес.')">
-            <div>Индивидуальная (1 мес)</div><div class="price">220 ₽</div>
+<div class="container">
+    
+    <div id="step1" class="step active">
+        <h2>Spotify Premium</h2>
+        <p>Выбери свой уровень комфорта</p>
+        
+        <div class="card popular" onclick="selectPlan('individual','1m',220,'Индивидуальная 1 мес')">
+            <div class="plan-info"><span class="name">Индивидуальная ⚡️</span><span class="desc">1 месяц подписки</span></div>
+            <div class="plan-price">220 ₽</div>
         </div>
-        <div class="card" onclick="selectPlan('individual', '6m', 1100, 'Индивидуальная 6 мес.')">
-            <div>Индивидуальная (6 мес) 🔥</div><div class="price">1100 ₽</div>
+        <div class="card" onclick="selectPlan('individual','6m',1100,'Индивидуальная 6 мес')">
+            <div class="plan-info"><span class="name">Индивидуальная</span><span class="desc">6 месяцев</span></div>
+            <div class="plan-price">1100 ₽</div>
         </div>
-        <div class="card" onclick="selectPlan('duo', '1m', 349, 'Duo (для двоих)')">
-            <div>Duo (1 мес)</div><div class="price">349 ₽</div>
+        <div class="card" onclick="selectPlan('individual','12m',1800,'Индивидуальная 1 год')">
+            <div class="plan-info"><span class="name">Индивидуальная</span><span class="desc">12 месяцев (Выгодно)</span></div>
+            <div class="plan-price">1800 ₽</div>
         </div>
-        <div class="card" onclick="selectPlan('family', '1m', 499, 'Family (до 6 чел)')">
-            <div>Family (1 мес) ⭐️</div><div class="price">499 ₽</div>
+        <div class="card" onclick="selectPlan('duo','1m',349,'Duo (для двоих)')">
+            <div class="plan-info"><span class="name">Duo 👥</span><span class="desc">Для пары (2 аккаунта)</span></div>
+            <div class="plan-price">349 ₽</div>
+        </div>
+        <div class="card" onclick="selectPlan('family','1m',499,'Family (семья)')">
+            <div class="plan-info"><span class="name">Family 🏠</span><span class="desc">До 6 человек</span></div>
+            <div class="plan-price">499 ₽</div>
         </div>
     </div>
 
-    <div id="step-data" class="step">
-        <h3 id="selected-title"></h3>
-        <p style="color: var(--tg-hint)">Шаг 1: Введите ваш Spotify Email</p>
-        <input type="email" id="email" placeholder="example@mail.com">
-        <button class="btn" onclick="checkData()">Продолжить</button>
-        <button class="btn" style="background:none; color:var(--tg-hint)" onclick="goStep('plans')">Назад</button>
+    <div id="step2" class="step">
+        <h2>Твоя почта</h2>
+        <p>Введи Email от твоего Spotify аккаунта</p>
+        <div class="input-group">
+            <input type="email" id="email-input" placeholder="example@mail.com" inputmode="email">
+        </div>
+        <button class="btn" onclick="confirmEmail()">Продолжить</button>
+        <button class="btn btn-secondary" onclick="showStep(1)">Назад</button>
     </div>
 
-    <div id="step-pay" class="step">
-        <h3>Оплата переводом</h3>
-        <div class="card">
-            Сумма: <b id="pay-amount"></b><br>
-            Карта: <code id="card-num">2204 3203 8736 6430</code>
+    <div id="step3" class="step">
+        <h2>Оплата</h2>
+        <p>Переведи точную сумму на карту ниже:</p>
+        
+        <div class="copy-box" onclick="copyCard()">
+            <code id="card-num">2204 3203 8736 6430</code>
+            <span class="copy-hint">Копировать</span>
         </div>
-        <p style="font-size: 0.9em; color: var(--tg-hint)">
-            1. Переведите сумму по реквизитам выше.<br>
-            2. После оплаты нажмите кнопку ниже и <b>прикрепите скриншот</b> в чате бота.
-        </p>
+
+        <div style="background: var(--sec-bg-color); padding: 16px; border-radius: 14px; margin-bottom: 20px;">
+            К оплате: <b style="color: var(--accent)" id="final-price">0 ₽</b><br>
+            Тариф: <span id="final-plan" style="font-weight: bold;">-</span>
+        </div>
+
+        <p style="font-size: 11px;">После оплаты нажми кнопку ниже и прикрепи скриншот в чате с ботом.</p>
         <button class="btn" onclick="finishOrder()">Я оплатил(а)</button>
     </div>
 
-    <div id="step-game" class="step">
-        <h3>Заказ отправлен!</h3>
-        <p>Админ проверит ваш скриншот в ближайшее время. А пока — подержите ритм!</p>
-        <div id="game-area">
-            <div class="disc" id="clicker">🎧</div>
-            <div style="margin-top:10px">Кликов: <span id="score">0</span></div>
+    <div id="step4" class="step">
+        <div class="game-zone">
+            <h2>Почти готово!</h2>
+            <p>Мы проверяем оплату. Пока ждешь — подержи бит!</p>
+            <div class="score" id="score">0</div>
+            <div class="vinyl-container" onclick="tapVinyl(event)">
+                <div class="vinyl" id="vinyl-el"></div>
+            </div>
         </div>
     </div>
 
-    <script>
-        let tg = window.Telegram.WebApp;
-        tg.expand();
+</div>
+
+<div id="toast">Скопировано!</div>
+
+<script>
+    const tg = window.Telegram.WebApp;
+    tg.expand();
+    tg.setHeaderColor('bg_color');
+
+    let order = { plan_key: '', duration: '', price_rub: 0, plan_name: '', email: '' };
+    let score = 0;
+
+    function showStep(num) {
+        document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
+        document.getElementById('step' + num).classList.add('active');
+    }
+
+    function selectPlan(key, dur, price, name) {
+        order.plan_key = key; order.duration = dur; order.price_rub = price; order.plan_name = name;
+        showStep(2);
+    }
+
+    function confirmEmail() {
+        const email = document.getElementById('email-input').value.trim();
+        if (!email.includes('@') || email.length < 5) {
+            tg.showAlert('Введи корректную почту!');
+            return;
+        }
+        order.email = email;
+        document.getElementById('final-price').innerText = order.price_rub + ' ₽';
+        document.getElementById('final-plan').innerText = order.plan_name;
+        showStep(3);
+    }
+
+    function copyCard() {
+        const num = document.getElementById('card-num').innerText.replace(/\s/g, '');
+        navigator.clipboard.writeText(num);
+        const toast = document.getElementById('toast');
+        toast.style.opacity = '1';
+        setTimeout(() => toast.style.opacity = '0', 2000);
+        if (tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
+    }
+
+    function finishOrder() {
+        tg.sendData(JSON.stringify(order));
+        showStep(4);
+    }
+
+    function tapVinyl(e) {
+        score++;
+        document.getElementById('score').innerText = score;
         
-        let order = { plan_key: '', duration: '', price_rub: 0, plan_name: '', email: '' };
+        const vinyl = document.getElementById('vinyl-el');
+        vinyl.style.transform = 'scale(0.95)';
+        setTimeout(() => vinyl.style.transform = 'scale(1)', 50);
 
-        function goStep(id) {
-            document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
-            document.getElementById('step-' + id).classList.add('active');
-        }
+        if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred('medium');
+    }
+</script>
 
-        function selectPlan(key, dur, price, name) {
-            order.plan_key = key; order.duration = dur; order.price_rub = price; order.plan_name = name;
-            document.getElementById('selected-title').innerText = name;
-            goStep('data');
-        }
-
-        function checkData() {
-            let email = document.getElementById('email').value;
-            if(!email.includes('@')) return alert('Введите корректный email');
-            order.email = email;
-            document.getElementById('pay-amount').innerText = order.price_rub + ' ₽';
-            goStep('pay');
-        }
-
-        function finishOrder() {
-            // Отправляем данные боту
-            tg.sendData(JSON.stringify(order));
-            goStep('game');
-        }
-
-        // Мини-игра кликер
-        let score = 0;
-        document.getElementById('clicker').onclick = function() {
-            score++;
-            document.getElementById('score').innerText = score;
-            this.style.transform = 'scale(0.85)';
-            setTimeout(() => this.style.transform = 'scale(1)', 50);
-        };
-    </script>
 </body>
 </html>
