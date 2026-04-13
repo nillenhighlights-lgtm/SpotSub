@@ -1,201 +1,238 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8">
-  <title>SpotSub</title>
-  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+<meta charset="UTF-8">
+<title>SpotSub</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
 
-  <style>
-    body {
-      margin: 0;
-      font-family: Arial;
-      background: #0f0f0f;
-      color: white;
-      padding: 20px;
-    }
+<style>
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+  background: #0b0b0b;
+  color: white;
+  padding: 20px;
+}
 
-    h1 {
-      text-align: center;
-      margin-bottom: 20px;
-    }
+/* ЛОГО */
+.logo {
+  text-align: center;
+  margin-bottom: 20px;
+}
 
-    .card {
-      background: #1a1a1a;
-      padding: 15px;
-      border-radius: 12px;
-      margin-bottom: 15px;
-      transition: 0.2s;
-    }
+.logo img {
+  width: 160px;
+}
 
-    .card:hover {
-      transform: scale(1.02);
-    }
+/* КАРТОЧКИ */
+.card {
+  background: #141414;
+  border-radius: 16px;
+  padding: 18px;
+  margin-bottom: 15px;
+  transition: 0.25s;
+  border: 1px solid #1f1f1f;
+}
 
-    .price {
-      font-size: 20px;
-      font-weight: bold;
-      margin: 10px 0;
-    }
+.card:hover {
+  transform: scale(1.03);
+  border-color: #1db954;
+}
 
-    button {
-      width: 100%;
-      padding: 12px;
-      border: none;
-      border-radius: 8px;
-      background: #1db954;
-      color: white;
-      font-size: 16px;
-      cursor: pointer;
-    }
+/* АКТИВНЫЙ ТАРИФ */
+.card.popular {
+  border: 1px solid #ff9800;
+  box-shadow: 0 0 20px rgba(255,152,0,0.15);
+}
 
-    button:hover {
-      opacity: 0.9;
-    }
+/* ЦЕНА */
+.price {
+  font-size: 22px;
+  font-weight: bold;
+  margin: 8px 0;
+}
 
-    input {
-      width: 100%;
-      padding: 12px;
-      margin-bottom: 10px;
-      border-radius: 8px;
-      border: none;
-      background: #2a2a2a;
-      color: white;
-      font-size: 14px;
-    }
+/* КНОПКИ */
+button {
+  width: 100%;
+  padding: 12px;
+  border-radius: 10px;
+  border: none;
+  background: linear-gradient(90deg, #1db954, #ff9800);
+  color: white;
+  font-size: 15px;
+  cursor: pointer;
+  transition: 0.2s;
+}
 
-    .tag {
-      background: #1db954;
-      padding: 3px 8px;
-      border-radius: 6px;
-      font-size: 12px;
-      margin-left: 5px;
-    }
+button:hover {
+  opacity: 0.9;
+  transform: scale(1.02);
+}
 
-    .hidden {
-      display: none;
-    }
-  </style>
+/* INPUT */
+input {
+  width: 100%;
+  padding: 12px;
+  margin-bottom: 10px;
+  border-radius: 10px;
+  border: 1px solid #2a2a2a;
+  background: #111;
+  color: white;
+}
+
+/* АНИМАЦИИ */
+.fade {
+  animation: fade 0.3s ease;
+}
+
+@keyframes fade {
+  from { opacity: 0; transform: translateY(10px);}
+  to { opacity: 1; transform: translateY(0);}
+}
+
+.hidden {
+  display: none;
+}
+
+/* ТЕГ */
+.tag {
+  font-size: 12px;
+  color: #ff9800;
+}
+
+.error {
+  color: #ff4d4d;
+  font-size: 13px;
+}
+</style>
 </head>
+
 <body>
 
-<h1>🎧 SpotSub</h1>
+<div class="logo">
+  <img src="logo.png">
+</div>
 
 <!-- ШАГ 1 -->
-<div id="step1">
+<div id="step1" class="fade">
 
   <div class="card">
-    <h2>Индивидуальная</h2>
-    <div class="price">220 ₽ / 1 мес</div>
-    <button onclick="selectPlan('individual','Индивидуальная','1m',220,'1 месяц')">Выбрать</button>
+    <h3>1 месяц</h3>
+    <div class="price">220 ₽</div>
+    <button onclick="selectPlan('individual','1m',220,'1 месяц')">Выбрать</button>
   </div>
 
   <div class="card">
-    <h2>3 месяца</h2>
+    <h3>3 месяца</h3>
     <div class="price">650 ₽</div>
-    <button onclick="selectPlan('individual','Индивидуальная','3m',650,'3 месяца')">Выбрать</button>
+    <button onclick="selectPlan('individual','3m',650,'3 месяца')">Выбрать</button>
   </div>
 
-  <div class="card">
-    <h2>🔥 6 месяцев <span class="tag">Выгодно</span></h2>
+  <div class="card popular">
+    <h3>6 месяцев <span class="tag">лучший выбор</span></h3>
     <div class="price">1100 ₽</div>
-    <button onclick="selectPlan('individual','Индивидуальная','6m',1100,'6 месяцев')">Выбрать</button>
+    <button onclick="selectPlan('individual','6m',1100,'6 месяцев')">Выбрать</button>
   </div>
 
   <div class="card">
-    <h2>💎 12 месяцев</h2>
+    <h3>12 месяцев</h3>
     <div class="price">1800 ₽</div>
-    <button onclick="selectPlan('individual','Индивидуальная','12m',1800,'1 год')">Выбрать</button>
-  </div>
-
-  <div class="card">
-    <h2>Duo</h2>
-    <div class="price">349 ₽</div>
-    <button onclick="selectPlan('duo','Duo','1m',349,'1 месяц')">Выбрать</button>
-  </div>
-
-  <div class="card">
-    <h2>Family</h2>
-    <div class="price">499 ₽</div>
-    <button onclick="selectPlan('family','Family','1m',499,'1 месяц')">Выбрать</button>
+    <button onclick="selectPlan('individual','12m',1800,'1 год')">Выбрать</button>
   </div>
 
 </div>
 
 <!-- ШАГ 2 -->
-<div id="step2" class="hidden">
+<div id="step2" class="hidden fade">
 
   <div class="card">
-    <h2>Введите данные</h2>
+    <h3>Введите данные</h3>
 
     <input id="email" placeholder="Email Spotify">
+    <div id="emailError" class="error"></div>
+
     <input id="password" type="password" placeholder="Пароль">
 
-    <button onclick="sendOrder()">Продолжить</button>
+    <button onclick="validate()">Продолжить</button>
   </div>
 
 </div>
 
 <!-- ШАГ 3 -->
-<div id="step3" class="hidden">
+<div id="step3" class="hidden fade">
 
   <div class="card">
-    <h2>Подтверждение</h2>
+    <h3>Подтверждение</h3>
 
     <p id="summary"></p>
 
-    <button onclick="finalSend()">Перейти к оплате</button>
+    <button onclick="send()">Перейти к оплате</button>
   </div>
 
 </div>
 
 <script>
-  const tg = window.Telegram.WebApp;
-  tg.expand();
+const tg = window.Telegram.WebApp;
+tg.expand();
 
-  let selectedPlan = {};
-  let userData = {};
+let selectedPlan = {};
+let userData = {};
 
-  function selectPlan(plan_key, plan_name, duration, price, dur_text) {
-    selectedPlan = {
-      plan_key,
-      plan_name,
-      duration,
-      price_rub: price,
-      dur_text
-    };
+function selectPlan(key, duration, price, text) {
+  selectedPlan = {
+    plan_key: key,
+    plan_name: "Индивидуальная",
+    duration: duration,
+    price_rub: price,
+    dur_text: text
+  };
 
-    document.getElementById('step1').classList.add('hidden');
-    document.getElementById('step2').classList.remove('hidden');
+  step(2);
+}
+
+function step(num) {
+  document.getElementById("step1").classList.add("hidden");
+  document.getElementById("step2").classList.add("hidden");
+  document.getElementById("step3").classList.add("hidden");
+
+  document.getElementById("step"+num).classList.remove("hidden");
+}
+
+function validate() {
+  const email = document.getElementById("email").value.trim();
+  const password = document.getElementById("password").value.trim();
+
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+  if (!emailRegex.test(email)) {
+    document.getElementById("emailError").innerText = "Неверный email";
+    return;
   }
 
-  function sendOrder() {
-    const email = document.getElementById('email').value.trim();
-    const password = document.getElementById('password').value.trim();
-
-    if (!email || !password) {
-      alert("Заполни все поля");
-      return;
-    }
-
-    userData = {
-      ...selectedPlan,
-      email,
-      password
-    };
-
-    document.getElementById('step2').classList.add('hidden');
-    document.getElementById('step3').classList.remove('hidden');
-
-    document.getElementById('summary').innerHTML = `
-      План: <b>${selectedPlan.plan_name}</b><br>
-      Срок: <b>${selectedPlan.dur_text}</b><br>
-      К оплате: <b>${selectedPlan.price_rub} ₽</b>
-    `;
+  if (!password) {
+    alert("Введите пароль");
+    return;
   }
 
-  function finalSend() {
-    tg.sendData(JSON.stringify(userData));
-  }
+  userData = {
+    ...selectedPlan,
+    email,
+    password
+  };
+
+  document.getElementById("summary").innerHTML = `
+    План: <b>${selectedPlan.plan_name}</b><br>
+    Срок: <b>${selectedPlan.dur_text}</b><br>
+    К оплате: <b>${selectedPlan.price_rub} ₽</b>
+  `;
+
+  step(3);
+}
+
+function send() {
+  tg.sendData(JSON.stringify(userData));
+}
 </script>
 
 </body>
