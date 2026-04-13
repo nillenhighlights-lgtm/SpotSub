@@ -1,365 +1,150 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<title>SpotSub</title>
-<script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Spotify Premium Store</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        :root {
+            --tg-bg: var(--tg-theme-bg-color, #121212);
+            --tg-text: var(--tg-theme-text-color, #ffffff);
+            --tg-hint: var(--tg-theme-hint-color, #a8a8a8);
+            --accent: #b5e61d;
+            --accent-soft: rgba(181, 230, 29, 0.1);
+            --card-bg: var(--tg-theme-secondary-bg-color, #1e1e1e);
+        }
+        body {
+            margin: 0; font-family: -apple-system, sans-serif;
+            background: var(--tg-bg); color: var(--tg-text);
+            padding: 16px; overflow-x: hidden;
+        }
+        .step { display: none; animation: fadeIn 0.3s ease; }
+        .step.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-<style>
-/* Подключаем CSS-переменные Telegram и определяем свои жёлто-зелёные */
-:root {
-  /* Тема Telegram (светлая/тёмная) */
-  --tg-bg-color: var(--tg-theme-bg-color, #121212);
-  --tg-sec-bg-color: var(--tg-theme-secondary-bg-color, #1e1e1e);
-  --tg-text-color: var(--tg-theme-text-color, #ffffff);
-  --tg-hint-color: var(--tg-theme-hint-color, #a8a8a8);
-  --tg-btn-text: var(--tg-theme-button-text-color, #ffffff);
+        /* Дизайн карточек */
+        .card {
+            background: var(--card-bg); border-radius: 16px; padding: 20px;
+            margin-bottom: 12px; border: 1px solid rgba(255,255,255,0.05);
+            cursor: pointer; transition: 0.2s;
+        }
+        .card:active { transform: scale(0.98); }
+        .card.selected { border-color: var(--accent); background: var(--accent-soft); }
+        .price { color: var(--accent); font-weight: bold; font-size: 1.2em; }
 
-  /* НАШИ ЖЁЛТО-ЗЕЛЁНЫЕ ЦВЕТА */
-  --our-accent: #b5e61d; /* Лаймовый/Жёлто-зелёный */
-  --our-accent-soft: rgba(181, 230, 29, 0.15); /* Мягкий фон для тагов */
-  --our-btn-gradient: linear-gradient(135deg, #d4fc79 0%, #b5e61d 100%); /* Градиент кнопки */
-  
-  --danger: #ff4d4d;
-}
+        /* Поля ввода */
+        input {
+            width: 100%; padding: 14px; border-radius: 12px; border: 1px solid #333;
+            background: var(--tg-bg); color: #fff; margin: 10px 0; box-sizing: border-box;
+        }
+        .btn {
+            width: 100%; padding: 16px; border-radius: 12px; border: none;
+            background: var(--accent); color: #000; font-weight: bold;
+            font-size: 16px; cursor: pointer; margin-top: 10px;
+        }
 
-body {
-  margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-  background: var(--tg-bg-color);
-  color: var(--tg-text-color);
-  -webkit-font-smoothing: antialiased;
-}
-
-/* Основной контейнер: центрируем на ПК, фуллскрин на мобильных */
-.app-container {
-  max-width: 480px;
-  margin: 0 auto;
-  padding: 16px;
-  box-sizing: border-box;
-  min-height: 100vh;
-}
-
-/* ЗАГОЛОВКИ */
-h3 {
-  margin: 0 0 20px 0;
-  font-size: 22px;
-  font-weight: 700;
-  text-align: center;
-}
-
-h4 {
-  margin: 0 0 16px 0;
-  font-size: 18px;
-  font-weight: 600;
-}
-
-/* КАРТОЧКИ ТАРИФОВ (КЛИКАБЕЛЬНЫЕ) */
-.card-plan {
-  background: var(--tg-sec-bg-color);
-  border-radius: 16px;
-  padding: 20px;
-  margin-bottom: 12px;
-  cursor: pointer;
-  border: 2px solid transparent;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  transition: all 0.2s ease;
-  -webkit-tap-highlight-color: transparent; /* Убираем синий блик при клике на iOS */
-}
-
-/* Эффект нажатия */
-.card-plan:active {
-  transform: scale(0.97);
-}
-
-/* Активный/Популярный тариф - подсвечиваем жёлто-зелёным */
-.card-plan.popular {
-  border-color: var(--our-accent);
-  position: relative;
-}
-
-.card-title {
-  font-size: 17px;
-  font-weight: 600;
-}
-
-.card-price {
-  font-size: 20px;
-  font-weight: 700;
-  color: var(--our-accent); /* Жёлто-зелёная цена */
-}
-
-/* ТАГ "ЛУЧШИЙ ВЫБОР" */
-.tag {
-  font-size: 11px;
-  text-transform: uppercase;
-  font-weight: bold;
-  background: var(--our-accent-soft);
-  color: var(--our-accent);
-  padding: 4px 10px;
-  border-radius: 10px;
-  margin-left: 8px;
-  vertical-align: middle;
-}
-
-/* ИНПУТЫ И КНОПКИ КНОПКИ */
-.block-data {
-  background: var(--tg-sec-bg-color);
-  border-radius: 16px;
-  padding: 20px;
-  box-sizing: border-box;
-}
-
-.input-group {
-  margin-bottom: 16px;
-}
-
-input {
-  width: 100%;
-  padding: 16px;
-  border-radius: 12px;
-  border: 1px solid rgba(255,255,255,0.05);
-  background: var(--tg-bg-color);
-  color: var(--tg-text-color);
-  font-size: 16px;
-  box-sizing: border-box;
-  transition: border-color 0.2s;
-  outline: none;
-}
-
-input:focus {
-  border-color: var(--our-accent); /* Жёлто-зелёная обводка при фокусе */
-}
-
-/* Главная кнопка действия (как в твоём примере, но с нашим градиентом) */
-button.main-action-btn {
-  width: 100%;
-  padding: 16px;
-  border-radius: 12px;
-  border: none;
-  background: var(--our-btn-gradient); /* Жёлто-зелёный градиент */
-  color: #000; /* Чёрный текст лучше читается на жёлто-зелёном */
-  font-size: 16px;
-  font-weight: 700;
-  cursor: pointer;
-  transition: all 0.2s;
-  margin-top: 8px;
-}
-
-button.main-action-btn:active {
-  transform: scale(0.98);
-  opacity: 0.9;
-}
-
-/* Кнопка "Назад" */
-.back-btn {
-  color: var(--tg-hint-color);
-  font-size: 15px;
-  margin-bottom: 20px;
-  display: inline-flex;
-  align-items: center;
-  cursor: pointer;
-  font-weight: 500;
-}
-
-.back-btn:active {
-  opacity: 0.7;
-}
-
-/* Сводка заказа */
-.summary-box {
-  border-radius: 12px;
-  padding: 16px;
-  background: var(--tg-bg-color);
-  margin-bottom: 20px;
-  border: 1px solid rgba(255,255,255,0.05);
-  line-height: 1.6;
-}
-
-/* ОШИБКИ */
-.error-text {
-  color: var(--danger);
-  font-size: 13px;
-  margin-top: 6px;
-  display: none;
-}
-
-/* АНИМАЦИИ */
-.fade-in {
-  animation: fadeIn 0.3s ease;
-}
-
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-.hidden {
-  display: none;
-}
-</style>
+        /* Кликер */
+        #game-area {
+            text-align: center; padding: 30px; background: var(--card-bg); border-radius: 20px;
+        }
+        .disc {
+            width: 150px; height: 150px; background: var(--accent);
+            border-radius: 50%; margin: 20px auto; display: flex;
+            align-items: center; justify-content: center; font-size: 40px;
+            box-shadow: 0 0 20px var(--accent-soft); cursor: pointer;
+            transition: 0.1s; user-select: none;
+        }
+        .disc:active { transform: scale(0.9); }
+    </style>
 </head>
-
 <body>
 
-<div class="app-container">
-  
-  <div id="step1" class="fade-in">
-    <h3>Тарифы Spotify</h3>
-
-    <div class="card-plan" onclick="selectPlan('individual','1m',220,'1 месяц')">
-      <div class="card-title">1 месяц</div>
-      <div class="card-price">220 ₽</div>
-    </div>
-
-    <div class="card-plan" onclick="selectPlan('individual','3m',650,'3 месяца')">
-      <div class="card-title">3 месяца</div>
-      <div class="card-price">650 ₽</div>
-    </div>
-
-    <div class="card-plan popular" onclick="selectPlan('individual','6m',1100,'6 месяцев')">
-      <div class="card-title">6 месяцев <span class="tag">Топ</span></div>
-      <div class="card-price">1100 ₽</div>
-    </div>
-
-    <div class="card-plan" onclick="selectPlan('individual','12m',1800,'1 год')">
-      <div class="card-title">12 месяцев</div>
-      <div class="card-price">1800 ₽</div>
-    </div>
-  </div>
-
-  <div id="step2" class="hidden fade-in">
-    <div class="back-btn" onclick="goToStep(1)">← Назад к тарифам</div>
-    
-    <div class="block-data">
-      <h4>Введите данные</h4>
-
-      <div class="input-group">
-        <input id="email" type="email" placeholder="Email от Spotify" inputmode="email">
-        <div id="emailError" class="error-text">Неверный формат email</div>
-      </div>
-
-      <div class="input-group">
-        <input id="password" type="password" placeholder="Пароль">
-        <div id="passError" class="error-text">Пароль не может быть пустым</div>
-      </div>
-
-      <button class="main-action-btn" onclick="validate()">Продолжить</button>
-    </div>
-  </div>
-
-  <div id="step3" class="hidden fade-in">
-    <div class="back-btn" onclick="goToStep(2)">← Изменить данные</div>
-
-    <div class="block-data">
-      <h4>Подтверждение заказа</h4>
-
-      <div class="summary-box" id="summary">
+    <div id="step-plans" class="step active">
+        <h3>Выберите тариф</h3>
+        <div class="card" onclick="selectPlan('individual', '1m', 220, 'Индивидуальная 1 мес.')">
+            <div>Индивидуальная (1 мес)</div><div class="price">220 ₽</div>
         </div>
-
-      <button class="main-action-btn" onclick="sendData()">Перейти к оплате</button>
+        <div class="card" onclick="selectPlan('individual', '6m', 1100, 'Индивидуальная 6 мес.')">
+            <div>Индивидуальная (6 мес) 🔥</div><div class="price">1100 ₽</div>
+        </div>
+        <div class="card" onclick="selectPlan('duo', '1m', 349, 'Duo (для двоих)')">
+            <div>Duo (1 мес)</div><div class="price">349 ₽</div>
+        </div>
+        <div class="card" onclick="selectPlan('family', '1m', 499, 'Family (до 6 чел)')">
+            <div>Family (1 мес) ⭐️</div><div class="price">499 ₽</div>
+        </div>
     </div>
-  </div>
-</div>
 
-<script>
-// Инициализация Telegram WebApp
-const tg = window.Telegram.WebApp;
-tg.expand(); // Расширяем на весь экран
+    <div id="step-data" class="step">
+        <h3 id="selected-title"></h3>
+        <p style="color: var(--tg-hint)">Шаг 1: Введите ваш Spotify Email</p>
+        <input type="email" id="email" placeholder="example@mail.com">
+        <button class="btn" onclick="checkData()">Продолжить</button>
+        <button class="btn" style="background:none; color:var(--tg-hint)" onclick="goStep('plans')">Назад</button>
+    </div>
 
-// Устанавливаем цвет шапки Telegram в цвет фона приложения
-tg.setHeaderColor('bg_color');
+    <div id="step-pay" class="step">
+        <h3>Оплата переводом</h3>
+        <div class="card">
+            Сумма: <b id="pay-amount"></b><br>
+            Карта: <code id="card-num">2204 3203 8736 6430</code>
+        </div>
+        <p style="font-size: 0.9em; color: var(--tg-hint)">
+            1. Переведите сумму по реквизитам выше.<br>
+            2. После оплаты нажмите кнопку ниже и <b>прикрепите скриншот</b> в чате бота.
+        </p>
+        <button class="btn" onclick="finishOrder()">Я оплатил(а)</button>
+    </div>
 
-let selectedPlan = {};
-let userData = {};
+    <div id="step-game" class="step">
+        <h3>Заказ отправлен!</h3>
+        <p>Админ проверит ваш скриншот в ближайшее время. А пока — подержите ритм!</p>
+        <div id="game-area">
+            <div class="disc" id="clicker">🎧</div>
+            <div style="margin-top:10px">Кликов: <span id="score">0</span></div>
+        </div>
+    </div>
 
-// Функция выбора плана (кликом по всей карточке)
-function selectPlan(key, duration, price, text) {
-  selectedPlan = {
-    plan_key: key,
-    plan_name: "Индивидуальная",
-    duration: duration,
-    price_rub: price,
-    dur_text: text
-  };
-  goToStep(2);
-}
+    <script>
+        let tg = window.Telegram.WebApp;
+        tg.expand();
+        
+        let order = { plan_key: '', duration: '', price_rub: 0, plan_name: '', email: '' };
 
-// Переключение шагов
-function goToStep(num) {
-  // Скрываем все шаги
-  document.getElementById("step1").classList.add("hidden");
-  document.getElementById("step2").classList.add("hidden");
-  document.getElementById("step3").classList.add("hidden");
+        function goStep(id) {
+            document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
+            document.getElementById('step-' + id).classList.add('active');
+        }
 
-  // Показываем нужный
-  document.getElementById("step"+num).classList.remove("hidden");
-  
-  // Если возвращаемся назад на шаг 2, сбрасываем ошибки
-  if(num === 2) {
-    document.getElementById("emailError").style.display = "none";
-    document.getElementById("passError").style.display = "none";
-  }
-}
+        function selectPlan(key, dur, price, name) {
+            order.plan_key = key; order.duration = dur; order.price_rub = price; order.plan_name = name;
+            document.getElementById('selected-title').innerText = name;
+            goStep('data');
+        }
 
-// Валидация данных
-function validate() {
-  const email = document.getElementById("email").value.trim();
-  const password = document.getElementById("password").value.trim();
-  
-  const emailError = document.getElementById("emailError");
-  const passError = document.getElementById("passError");
-  
-  // Сброс ошибок
-  emailError.style.display = "none";
-  passError.style.display = "none";
+        function checkData() {
+            let email = document.getElementById('email').value;
+            if(!email.includes('@')) return alert('Введите корректный email');
+            order.email = email;
+            document.getElementById('pay-amount').innerText = order.price_rub + ' ₽';
+            goStep('pay');
+        }
 
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  let isValid = true;
+        function finishOrder() {
+            // Отправляем данные боту
+            tg.sendData(JSON.stringify(order));
+            goStep('game');
+        }
 
-  if (!emailRegex.test(email)) {
-    emailError.style.display = "block";
-    isValid = false;
-  }
-
-  if (!password) {
-    passError.style.display = "block";
-    isValid = false;
-  }
-
-  if (!isValid) return;
-
-  // Сохраняем данные
-  userData = {
-    ...selectedPlan,
-    email,
-    password
-  };
-
-  // Заполняем сводку
-  document.getElementById("summary").innerHTML = `
-    <span style="color: var(--tg-hint-color)">Подписка:</span> <b>Spotify ${selectedPlan.dur_text}</b><br>
-    <span style="color: var(--tg-hint-color)">Email:</span> <b>${email}</b><br>
-    <div style="margin-top: 10px; font-size: 18px;">К оплате: <b style="color: var(--our-accent)">${selectedPlan.price_rub} ₽</b></div>
-  `;
-
-  goToStep(3);
-}
-
-// Отправка данных боту
-function sendData() {
-  // Немного UX: меняем текст на кнопке
-  const btn = document.querySelector('#step3 .main-action-btn');
-  btn.innerText = "Загрузка...";
-  btn.style.pointerEvents = "none";
-  btn.style.opacity = "0.7";
-
-  tg.sendData(JSON.stringify(userData));
-}
-</script>
-
+        // Мини-игра кликер
+        let score = 0;
+        document.getElementById('clicker').onclick = function() {
+            score++;
+            document.getElementById('score').innerText = score;
+            this.style.transform = 'scale(0.85)';
+            setTimeout(() => this.style.transform = 'scale(1)', 50);
+        };
+    </script>
 </body>
 </html>
