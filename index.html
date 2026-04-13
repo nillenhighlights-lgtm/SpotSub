@@ -1,238 +1,220 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-<meta charset="UTF-8">
-<title>SpotSub</title>
-<script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>SpotSub</title>
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <style>
+    /* Базовые настройки и шрифты в стиле экосистемы Apple */
+    :root {
+      --spotify-green: #1db954;
+      --glass-bg: rgba(255, 255, 255, 0.08);
+      --glass-border: rgba(255, 255, 255, 0.1);
+    }
 
-<style>
-body {
-  margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, sans-serif;
-  background: #0b0b0b;
-  color: white;
-  padding: 20px;
-}
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background-color: var(--tg-theme-bg-color, #000000);
+      color: var(--tg-theme-text-color, #ffffff);
+      padding: 24px 20px;
+      /* Легкий градиент на фоне для глубины эффекта стекла */
+      background-image: 
+        radial-gradient(circle at 0% 0%, rgba(29, 185, 84, 0.15), transparent 40%),
+        radial-gradient(circle at 100% 100%, rgba(29, 185, 84, 0.1), transparent 40%);
+      background-attachment: fixed;
+      -webkit-font-smoothing: antialiased;
+    }
 
-/* ЛОГО */
-.logo {
-  text-align: center;
-  margin-bottom: 20px;
-}
+    .header {
+      text-align: center;
+      margin-bottom: 32px;
+    }
 
-.logo img {
-  width: 160px;
-}
+    .header h1 {
+      margin: 0;
+      font-size: 28px;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+    }
 
-/* КАРТОЧКИ */
-.card {
-  background: #141414;
-  border-radius: 16px;
-  padding: 18px;
-  margin-bottom: 15px;
-  transition: 0.25s;
-  border: 1px solid #1f1f1f;
-}
+    .header p {
+      margin: 6px 0 0;
+      font-size: 15px;
+      color: var(--tg-theme-hint-color, rgba(255, 255, 255, 0.6));
+    }
 
-.card:hover {
-  transform: scale(1.03);
-  border-color: #1db954;
-}
+    /* Эффект Liquid Glass для карточек */
+    .card {
+      background: var(--glass-bg);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid var(--glass-border);
+      border-radius: 20px;
+      padding: 20px;
+      margin-bottom: 16px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+      transition: transform 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
+    }
 
-/* АКТИВНЫЙ ТАРИФ */
-.card.popular {
-  border: 1px solid #ff9800;
-  box-shadow: 0 0 20px rgba(255,152,0,0.15);
-}
+    .card:active {
+      transform: scale(0.97);
+    }
 
-/* ЦЕНА */
-.price {
-  font-size: 22px;
-  font-weight: bold;
-  margin: 8px 0;
-}
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      margin-bottom: 16px;
+    }
 
-/* КНОПКИ */
-button {
-  width: 100%;
-  padding: 12px;
-  border-radius: 10px;
-  border: none;
-  background: linear-gradient(90deg, #1db954, #ff9800);
-  color: white;
-  font-size: 15px;
-  cursor: pointer;
-  transition: 0.2s;
-}
+    .card h2 {
+      margin: 0;
+      font-size: 19px;
+      font-weight: 600;
+      letter-spacing: -0.3px;
+    }
 
-button:hover {
-  opacity: 0.9;
-  transform: scale(1.02);
-}
+    .price-block {
+      text-align: right;
+    }
 
-/* INPUT */
-input {
-  width: 100%;
-  padding: 12px;
-  margin-bottom: 10px;
-  border-radius: 10px;
-  border: 1px solid #2a2a2a;
-  background: #111;
-  color: white;
-}
+    .price {
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--spotify-green);
+    }
 
-/* АНИМАЦИИ */
-.fade {
-  animation: fade 0.3s ease;
-}
+    .duration {
+      font-size: 13px;
+      color: var(--tg-theme-hint-color, rgba(255, 255, 255, 0.5));
+      margin-top: 2px;
+    }
 
-@keyframes fade {
-  from { opacity: 0; transform: translateY(10px);}
-  to { opacity: 1; transform: translateY(0);}
-}
+    button {
+      width: 100%;
+      padding: 14px;
+      border: none;
+      border-radius: 14px;
+      background: var(--spotify-green);
+      color: #ffffff;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      box-shadow: 0 4px 14px rgba(29, 185, 84, 0.3);
+      transition: opacity 0.2s, transform 0.2s;
+    }
 
-.hidden {
-  display: none;
-}
+    button:active {
+      opacity: 0.8;
+      transform: translateY(1px);
+    }
 
-/* ТЕГ */
-.tag {
-  font-size: 12px;
-  color: #ff9800;
-}
-
-.error {
-  color: #ff4d4d;
-  font-size: 13px;
-}
-</style>
+    .badge {
+      display: inline-block;
+      background: rgba(29, 185, 84, 0.2);
+      color: var(--spotify-green);
+      font-size: 12px;
+      font-weight: 600;
+      padding: 4px 8px;
+      border-radius: 8px;
+      margin-bottom: 8px;
+    }
+  </style>
 </head>
-
 <body>
 
-<div class="logo">
-  <img src="logo.png">
+<div class="header">
+  <h1>🎧 SpotSub</h1>
+  <p>Выберите тарифный план</p>
 </div>
 
-<!-- ШАГ 1 -->
-<div id="step1" class="fade">
-
-  <div class="card">
-    <h3>1 месяц</h3>
-    <div class="price">220 ₽</div>
-    <button onclick="selectPlan('individual','1m',220,'1 месяц')">Выбрать</button>
+<div class="card">
+  <div class="card-header">
+    <h2>Индивидуальная</h2>
+    <div class="price-block">
+      <div class="price">220 ₽</div>
+      <div class="duration">1 месяц</div>
+    </div>
   </div>
-
-  <div class="card">
-    <h3>3 месяца</h3>
-    <div class="price">650 ₽</div>
-    <button onclick="selectPlan('individual','3m',650,'3 месяца')">Выбрать</button>
-  </div>
-
-  <div class="card popular">
-    <h3>6 месяцев <span class="tag">лучший выбор</span></h3>
-    <div class="price">1100 ₽</div>
-    <button onclick="selectPlan('individual','6m',1100,'6 месяцев')">Выбрать</button>
-  </div>
-
-  <div class="card">
-    <h3>12 месяцев</h3>
-    <div class="price">1800 ₽</div>
-    <button onclick="selectPlan('individual','12m',1800,'1 год')">Выбрать</button>
-  </div>
-
+  <button onclick="buy('individual','Индивидуальная','1m',220,'1 месяц')">Оформить</button>
 </div>
 
-<!-- ШАГ 2 -->
-<div id="step2" class="hidden fade">
-
-  <div class="card">
-    <h3>Введите данные</h3>
-
-    <input id="email" placeholder="Email Spotify">
-    <div id="emailError" class="error"></div>
-
-    <input id="password" type="password" placeholder="Пароль">
-
-    <button onclick="validate()">Продолжить</button>
+<div class="card" style="border-color: rgba(29, 185, 84, 0.4);">
+  <div class="badge">Выгодно</div>
+  <div class="card-header">
+    <h2>Индивидуальная</h2>
+    <div class="price-block">
+      <div class="price">1100 ₽</div>
+      <div class="duration">6 месяцев</div>
+    </div>
   </div>
-
+  <button onclick="buy('individual','Индивидуальная','6m',1100,'6 месяцев')">Оформить</button>
 </div>
 
-<!-- ШАГ 3 -->
-<div id="step3" class="hidden fade">
-
-  <div class="card">
-    <h3>Подтверждение</h3>
-
-    <p id="summary"></p>
-
-    <button onclick="send()">Перейти к оплате</button>
+<div class="card">
+  <div class="card-header">
+    <h2>Индивидуальная</h2>
+    <div class="price-block">
+      <div class="price">1800 ₽</div>
+      <div class="duration">1 год</div>
+    </div>
   </div>
+  <button onclick="buy('individual','Индивидуальная','12m',1800,'1 год')">Оформить</button>
+</div>
 
+<div class="card">
+  <div class="card-header">
+    <h2>Duo</h2>
+    <div class="price-block">
+      <div class="price">349 ₽</div>
+      <div class="duration">1 месяц</div>
+    </div>
+  </div>
+  <button onclick="buy('duo','Duo','1m',349,'1 месяц')">Оформить</button>
+</div>
+
+<div class="card">
+  <div class="card-header">
+    <h2>Family</h2>
+    <div class="price-block">
+      <div class="price">499 ₽</div>
+      <div class="duration">1 месяц</div>
+    </div>
+  </div>
+  <button onclick="buy('family','Family','1m',499,'1 месяц')">Оформить</button>
 </div>
 
 <script>
-const tg = window.Telegram.WebApp;
-tg.expand();
+  const tg = window.Telegram.WebApp;
+  
+  // Сообщаем Telegram, что Web App готов, и разворачиваем его на всю высоту
+  tg.ready();
+  tg.expand();
 
-let selectedPlan = {};
-let userData = {};
+  // Отключаем вертикальный скролл самого окна (баг фикс для iOS)
+  document.body.addEventListener('touchmove', function(e) {
+    if (e.target.tagName !== 'BUTTON') {
+      // e.preventDefault(); // Раскомментируй, если нужно жестко заблокировать скролл страницы
+    }
+  }, { passive: false });
 
-function selectPlan(key, duration, price, text) {
-  selectedPlan = {
-    plan_key: key,
-    plan_name: "Индивидуальная",
-    duration: duration,
-    price_rub: price,
-    dur_text: text
-  };
+  function buy(plan_key, plan_name, duration, price, dur_text) {
+    // Легкая вибрация при нажатии (Haptic Feedback)
+    tg.HapticFeedback.impactOccurred('light');
 
-  step(2);
-}
+    const data = {
+      plan_key: plan_key,
+      plan_name: plan_name,
+      duration: duration,
+      price_rub: price,
+      dur_text: dur_text
+    };
 
-function step(num) {
-  document.getElementById("step1").classList.add("hidden");
-  document.getElementById("step2").classList.add("hidden");
-  document.getElementById("step3").classList.add("hidden");
-
-  document.getElementById("step"+num).classList.remove("hidden");
-}
-
-function validate() {
-  const email = document.getElementById("email").value.trim();
-  const password = document.getElementById("password").value.trim();
-
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
-  if (!emailRegex.test(email)) {
-    document.getElementById("emailError").innerText = "Неверный email";
-    return;
+    // Отправляем данные обратно в бота
+    tg.sendData(JSON.stringify(data));
   }
-
-  if (!password) {
-    alert("Введите пароль");
-    return;
-  }
-
-  userData = {
-    ...selectedPlan,
-    email,
-    password
-  };
-
-  document.getElementById("summary").innerHTML = `
-    План: <b>${selectedPlan.plan_name}</b><br>
-    Срок: <b>${selectedPlan.dur_text}</b><br>
-    К оплате: <b>${selectedPlan.price_rub} ₽</b>
-  `;
-
-  step(3);
-}
-
-function send() {
-  tg.sendData(JSON.stringify(userData));
-}
 </script>
 
 </body>
