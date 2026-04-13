@@ -6,7 +6,6 @@
   <title>SpotSub</title>
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <style>
-    /* Базовые настройки и шрифты в стиле экосистемы Apple */
     :root {
       --spotify-green: #1db954;
       --glass-bg: rgba(255, 255, 255, 0.08);
@@ -19,7 +18,6 @@
       background-color: var(--tg-theme-bg-color, #000000);
       color: var(--tg-theme-text-color, #ffffff);
       padding: 24px 20px;
-      /* Легкий градиент на фоне для глубины эффекта стекла */
       background-image: 
         radial-gradient(circle at 0% 0%, rgba(29, 185, 84, 0.15), transparent 40%),
         radial-gradient(circle at 100% 100%, rgba(29, 185, 84, 0.1), transparent 40%);
@@ -29,7 +27,7 @@
 
     .header {
       text-align: center;
-      margin-bottom: 32px;
+      margin-bottom: 24px;
     }
 
     .header h1 {
@@ -45,7 +43,6 @@
       color: var(--tg-theme-hint-color, rgba(255, 255, 255, 0.6));
     }
 
-    /* Эффект Liquid Glass для карточек */
     .card {
       background: var(--glass-bg);
       backdrop-filter: blur(20px);
@@ -59,7 +56,38 @@
     }
 
     .card:active {
-      transform: scale(0.97);
+      transform: scale(0.98);
+    }
+
+    /* Стили для формы ввода */
+    .form-group {
+      margin-bottom: 12px;
+    }
+
+    .form-group:last-child {
+      margin-bottom: 0;
+    }
+
+    input {
+      width: 100%;
+      box-sizing: border-box;
+      padding: 14px 16px;
+      background: rgba(0, 0, 0, 0.2);
+      border: 1px solid var(--glass-border);
+      border-radius: 14px;
+      color: var(--tg-theme-text-color, #ffffff);
+      font-size: 16px;
+      outline: none;
+      transition: border-color 0.2s, background 0.2s;
+    }
+
+    input::placeholder {
+      color: var(--tg-theme-hint-color, rgba(255, 255, 255, 0.4));
+    }
+
+    input:focus {
+      border-color: var(--spotify-green);
+      background: rgba(0, 0, 0, 0.4);
     }
 
     .card-header {
@@ -127,7 +155,17 @@
 
 <div class="header">
   <h1>🎧 SpotSub</h1>
-  <p>Выберите тарифный план</p>
+  <p>Оформление подписки</p>
+</div>
+
+<div class="card" style="border-color: rgba(255, 255, 255, 0.2);">
+  <h2 style="margin-bottom: 16px; font-size: 17px;">Данные аккаунта</h2>
+  <div class="form-group">
+    <input type="email" id="spot_email" placeholder="Email от Spotify" autocomplete="email">
+  </div>
+  <div class="form-group">
+    <input type="text" id="spot_pass" placeholder="Пароль от Spotify">
+  </div>
 </div>
 
 <div class="card">
@@ -188,31 +226,38 @@
 
 <script>
   const tg = window.Telegram.WebApp;
-  
-  // Сообщаем Telegram, что Web App готов, и разворачиваем его на всю высоту
   tg.ready();
   tg.expand();
 
-  // Отключаем вертикальный скролл самого окна (баг фикс для iOS)
   document.body.addEventListener('touchmove', function(e) {
-    if (e.target.tagName !== 'BUTTON') {
-      // e.preventDefault(); // Раскомментируй, если нужно жестко заблокировать скролл страницы
+    if (e.target.tagName !== 'BUTTON' && e.target.tagName !== 'INPUT') {
+      // Оставляем пустой обработчик для правильной работы скролла
     }
   }, { passive: false });
 
   function buy(plan_key, plan_name, duration, price, dur_text) {
-    // Легкая вибрация при нажатии (Haptic Feedback)
     tg.HapticFeedback.impactOccurred('light');
+
+    // Получаем данные из полей
+    const email = document.getElementById('spot_email').value.trim();
+    const pass = document.getElementById('spot_pass').value.trim();
+
+    // Проверка: если поля пустые, не даем купить
+    if (!email || !pass) {
+      tg.showAlert("⚠️ Пожалуйста, введите Email и Пароль от аккаунта Spotify.");
+      return;
+    }
 
     const data = {
       plan_key: plan_key,
       plan_name: plan_name,
       duration: duration,
       price_rub: price,
-      dur_text: dur_text
+      dur_text: dur_text,
+      account_email: email, // Передаем почту в бота
+      account_pass: pass    // Передаем пароль в бота
     };
 
-    // Отправляем данные обратно в бота
     tg.sendData(JSON.stringify(data));
   }
 </script>
