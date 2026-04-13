@@ -1,265 +1,364 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>SpotSub</title>
-  <script src="https://telegram.org/js/telegram-web-app.js"></script>
-  <style>
-    :root {
-      --spotify-green: #1db954;
-      --glass-bg: rgba(255, 255, 255, 0.08);
-      --glass-border: rgba(255, 255, 255, 0.1);
-    }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>SpotSub</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
 
-    body {
-      margin: 0;
-      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-      background-color: var(--tg-theme-bg-color, #000000);
-      color: var(--tg-theme-text-color, #ffffff);
-      padding: 24px 20px;
-      background-image: 
-        radial-gradient(circle at 0% 0%, rgba(29, 185, 84, 0.15), transparent 40%),
-        radial-gradient(circle at 100% 100%, rgba(29, 185, 84, 0.1), transparent 40%);
-      background-attachment: fixed;
-      -webkit-font-smoothing: antialiased;
-    }
+<style>
+/* Подхватываем цвета из темы Telegram пользователя с дефолтными фолбэками для браузера */
+:root {
+  --bg-color: var(--tg-theme-bg-color, #121212);
+  --sec-bg-color: var(--tg-theme-secondary-bg-color, #1e1e1e);
+  --text-color: var(--tg-theme-text-color, #ffffff);
+  --hint-color: var(--tg-theme-hint-color, #a8a8a8);
+  --btn-color: var(--tg-theme-button-color, #1db954); /* Зеленый Spotify по умолчанию */
+  --btn-text: var(--tg-theme-button-text-color, #ffffff);
+  --accent: #1db954;
+  --danger: #ff4d4d;
+}
 
-    .header {
-      text-align: center;
-      margin-bottom: 24px;
-    }
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  background: var(--bg-color);
+  color: var(--text-color);
+}
 
-    .header h1 {
-      margin: 0;
-      font-size: 28px;
-      font-weight: 700;
-      letter-spacing: -0.5px;
-    }
+/* Центрируем на ПК, оставляем фуллскрин на мобилках */
+.container {
+  max-width: 480px;
+  margin: 0 auto;
+  padding: 20px;
+  box-sizing: border-box;
+  min-height: 100vh;
+}
 
-    .header p {
-      margin: 6px 0 0;
-      font-size: 15px;
-      color: var(--tg-theme-hint-color, rgba(255, 255, 255, 0.6));
-    }
+/* ЛОГО */
+.logo {
+  text-align: center;
+  margin-bottom: 24px;
+}
+.logo img {
+  width: 140px;
+  border-radius: 12px;
+}
 
-    .card {
-      background: var(--glass-bg);
-      backdrop-filter: blur(20px);
-      -webkit-backdrop-filter: blur(20px);
-      border: 1px solid var(--glass-border);
-      border-radius: 20px;
-      padding: 20px;
-      margin-bottom: 16px;
-      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
-      transition: transform 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
-    }
+/* ЗАГОЛОВКИ */
+h3 {
+  margin-top: 0;
+  margin-bottom: 16px;
+  font-size: 20px;
+  font-weight: 700;
+}
 
-    .card:active {
-      transform: scale(0.98);
-    }
+/* КАРТОЧКИ ТАРИФОВ */
+.card {
+  background: var(--sec-bg-color);
+  border-radius: 16px;
+  padding: 18px 20px;
+  margin-bottom: 12px;
+  cursor: pointer;
+  border: 2px solid transparent;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: all 0.2s ease;
+  -webkit-tap-highlight-color: transparent;
+}
 
-    /* Стили для формы ввода */
-    .form-group {
-      margin-bottom: 12px;
-    }
+.card:active {
+  transform: scale(0.97);
+}
 
-    .form-group:last-child {
-      margin-bottom: 0;
-    }
+.card.popular {
+  border-color: var(--accent);
+  position: relative;
+}
 
-    input {
-      width: 100%;
-      box-sizing: border-box;
-      padding: 14px 16px;
-      background: rgba(0, 0, 0, 0.2);
-      border: 1px solid var(--glass-border);
-      border-radius: 14px;
-      color: var(--tg-theme-text-color, #ffffff);
-      font-size: 16px;
-      outline: none;
-      transition: border-color 0.2s, background 0.2s;
-    }
+.card-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
 
-    input::placeholder {
-      color: var(--tg-theme-hint-color, rgba(255, 255, 255, 0.4));
-    }
+.card-title {
+  font-size: 16px;
+  font-weight: 600;
+}
 
-    input:focus {
-      border-color: var(--spotify-green);
-      background: rgba(0, 0, 0, 0.4);
-    }
+.card-price {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--accent);
+}
 
-    .card-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: baseline;
-      margin-bottom: 16px;
-    }
+.tag {
+  font-size: 10px;
+  text-transform: uppercase;
+  font-weight: bold;
+  background: rgba(29, 185, 84, 0.15);
+  color: var(--accent);
+  padding: 4px 8px;
+  border-radius: 8px;
+  margin-left: 8px;
+  vertical-align: middle;
+}
 
-    .card h2 {
-      margin: 0;
-      font-size: 19px;
-      font-weight: 600;
-      letter-spacing: -0.3px;
-    }
+/* ИНПУТЫ */
+.input-group {
+  margin-bottom: 16px;
+}
 
-    .price-block {
-      text-align: right;
-    }
+input {
+  width: 100%;
+  padding: 16px;
+  border-radius: 12px;
+  border: 1px solid var(--sec-bg-color);
+  background: var(--bg-color);
+  color: var(--text-color);
+  font-size: 16px;
+  box-sizing: border-box;
+  transition: 0.2s;
+  outline: none;
+}
 
-    .price {
-      font-size: 20px;
-      font-weight: 700;
-      color: var(--spotify-green);
-    }
+input:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px rgba(29, 185, 84, 0.2);
+}
 
-    .duration {
-      font-size: 13px;
-      color: var(--tg-theme-hint-color, rgba(255, 255, 255, 0.5));
-      margin-top: 2px;
-    }
+input::placeholder {
+  color: var(--hint-color);
+}
 
-    button {
-      width: 100%;
-      padding: 14px;
-      border: none;
-      border-radius: 14px;
-      background: var(--spotify-green);
-      color: #ffffff;
-      font-size: 16px;
-      font-weight: 600;
-      cursor: pointer;
-      box-shadow: 0 4px 14px rgba(29, 185, 84, 0.3);
-      transition: opacity 0.2s, transform 0.2s;
-    }
+/* КНОПКИ */
+button.main-btn {
+  width: 100%;
+  padding: 16px;
+  border-radius: 12px;
+  border: none;
+  background: var(--btn-color);
+  color: var(--btn-text);
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.2s;
+  margin-top: 8px;
+}
 
-    button:active {
-      opacity: 0.8;
-      transform: translateY(1px);
-    }
+button.main-btn:active {
+  transform: scale(0.97);
+  opacity: 0.9;
+}
 
-    .badge {
-      display: inline-block;
-      background: rgba(29, 185, 84, 0.2);
-      color: var(--spotify-green);
-      font-size: 12px;
-      font-weight: 600;
-      padding: 4px 8px;
-      border-radius: 8px;
-      margin-bottom: 8px;
-    }
-  </style>
+.back-btn {
+  color: var(--hint-color);
+  font-size: 14px;
+  margin-bottom: 20px;
+  display: inline-flex;
+  align-items: center;
+  cursor: pointer;
+  padding: 8px 0;
+  font-weight: 500;
+}
+
+.back-btn:active {
+  opacity: 0.7;
+}
+
+/* БЛОК ИТОГОВ */
+.summary-box {
+  background: var(--bg-color);
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 20px;
+  border: 1px solid var(--sec-bg-color);
+  line-height: 1.6;
+}
+
+/* ПРОЧЕЕ */
+.error {
+  color: var(--danger);
+  font-size: 13px;
+  margin-top: 6px;
+  display: none;
+}
+
+.fade {
+  animation: fade 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+@keyframes fade {
+  from { opacity: 0; transform: translateY(15px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.hidden {
+  display: none;
+}
+</style>
 </head>
+
 <body>
 
-<div class="header">
-  <h1>🎧 SpotSub</h1>
-  <p>Оформление подписки</p>
-</div>
-
-<div class="card" style="border-color: rgba(255, 255, 255, 0.2);">
-  <h2 style="margin-bottom: 16px; font-size: 17px;">Данные аккаунта</h2>
-  <div class="form-group">
-    <input type="email" id="spot_email" placeholder="Email от Spotify" autocomplete="email">
+<div class="container">
+  <div class="logo">
+    <img src="logo.png" alt="SpotSub Logo">
   </div>
-  <div class="form-group">
-    <input type="text" id="spot_pass" placeholder="Пароль от Spotify">
-  </div>
-</div>
 
-<div class="card">
-  <div class="card-header">
-    <h2>Индивидуальная</h2>
-    <div class="price-block">
-      <div class="price">220 ₽</div>
-      <div class="duration">1 месяц</div>
+  <div id="step1" class="fade">
+    <h3 style="text-align: center; margin-bottom: 24px;">Выберите тариф</h3>
+
+    <div class="card" onclick="selectPlan('individual','1m',220,'1 месяц')">
+      <div class="card-info">
+        <div class="card-title">1 месяц</div>
+      </div>
+      <div class="card-price">220 ₽</div>
+    </div>
+
+    <div class="card" onclick="selectPlan('individual','3m',650,'3 месяца')">
+      <div class="card-info">
+        <div class="card-title">3 месяца</div>
+      </div>
+      <div class="card-price">650 ₽</div>
+    </div>
+
+    <div class="card popular" onclick="selectPlan('individual','6m',1100,'6 месяцев')">
+      <div class="card-info">
+        <div class="card-title">6 месяцев <span class="tag">Топ</span></div>
+      </div>
+      <div class="card-price">1100 ₽</div>
+    </div>
+
+    <div class="card" onclick="selectPlan('individual','12m',1800,'1 год')">
+      <div class="card-info">
+        <div class="card-title">12 месяцев</div>
+      </div>
+      <div class="card-price">1800 ₽</div>
     </div>
   </div>
-  <button onclick="buy('individual','Индивидуальная','1m',220,'1 месяц')">Оформить</button>
-</div>
 
-<div class="card" style="border-color: rgba(29, 185, 84, 0.4);">
-  <div class="badge">Выгодно</div>
-  <div class="card-header">
-    <h2>Индивидуальная</h2>
-    <div class="price-block">
-      <div class="price">1100 ₽</div>
-      <div class="duration">6 месяцев</div>
+  <div id="step2" class="hidden fade">
+    <div class="back-btn" onclick="step(1)">← К тарифам</div>
+    
+    <div style="background: var(--sec-bg-color); border-radius: 16px; padding: 20px;">
+      <h3>Данные аккаунта</h3>
+
+      <div class="input-group">
+        <input id="email" type="email" placeholder="Email от Spotify" inputmode="email">
+        <div id="emailError" class="error">Введите корректный email</div>
+      </div>
+
+      <div class="input-group">
+        <input id="password" type="password" placeholder="Пароль">
+        <div id="passError" class="error">Пароль не может быть пустым</div>
+      </div>
+
+      <button class="main-btn" onclick="validate()">Продолжить</button>
     </div>
   </div>
-  <button onclick="buy('individual','Индивидуальная','6m',1100,'6 месяцев')">Оформить</button>
-</div>
 
-<div class="card">
-  <div class="card-header">
-    <h2>Индивидуальная</h2>
-    <div class="price-block">
-      <div class="price">1800 ₽</div>
-      <div class="duration">1 год</div>
+  <div id="step3" class="hidden fade">
+    <div class="back-btn" onclick="step(2)">← Назад</div>
+
+    <div style="background: var(--sec-bg-color); border-radius: 16px; padding: 20px;">
+      <h3>Подтверждение</h3>
+
+      <div class="summary-box" id="summary">
+        </div>
+
+      <button class="main-btn" onclick="send()">Перейти к оплате</button>
     </div>
   </div>
-  <button onclick="buy('individual','Индивидуальная','12m',1800,'1 год')">Оформить</button>
-</div>
-
-<div class="card">
-  <div class="card-header">
-    <h2>Duo</h2>
-    <div class="price-block">
-      <div class="price">349 ₽</div>
-      <div class="duration">1 месяц</div>
-    </div>
-  </div>
-  <button onclick="buy('duo','Duo','1m',349,'1 месяц')">Оформить</button>
-</div>
-
-<div class="card">
-  <div class="card-header">
-    <h2>Family</h2>
-    <div class="price-block">
-      <div class="price">499 ₽</div>
-      <div class="duration">1 месяц</div>
-    </div>
-  </div>
-  <button onclick="buy('family','Family','1m',499,'1 месяц')">Оформить</button>
 </div>
 
 <script>
-  const tg = window.Telegram.WebApp;
-  tg.ready();
-  tg.expand();
+const tg = window.Telegram.WebApp;
+tg.expand();
 
-  document.body.addEventListener('touchmove', function(e) {
-    if (e.target.tagName !== 'BUTTON' && e.target.tagName !== 'INPUT') {
-      // Оставляем пустой обработчик для правильной работы скролла
-    }
-  }, { passive: false });
+// Настраиваем цвета шапки Telegram под цвет фона
+tg.setHeaderColor('bg_color');
 
-  function buy(plan_key, plan_name, duration, price, dur_text) {
-    tg.HapticFeedback.impactOccurred('light');
+let selectedPlan = {};
+let userData = {};
 
-    // Получаем данные из полей
-    const email = document.getElementById('spot_email').value.trim();
-    const pass = document.getElementById('spot_pass').value.trim();
+function selectPlan(key, duration, price, text) {
+  selectedPlan = {
+    plan_key: key,
+    plan_name: "Индивидуальная",
+    duration: duration,
+    price_rub: price,
+    dur_text: text
+  };
+  step(2);
+}
 
-    // Проверка: если поля пустые, не даем купить
-    if (!email || !pass) {
-      tg.showAlert("⚠️ Пожалуйста, введите Email и Пароль от аккаунта Spotify.");
-      return;
-    }
+function step(num) {
+  document.getElementById("step1").classList.add("hidden");
+  document.getElementById("step2").classList.add("hidden");
+  document.getElementById("step3").classList.add("hidden");
 
-    const data = {
-      plan_key: plan_key,
-      plan_name: plan_name,
-      duration: duration,
-      price_rub: price,
-      dur_text: dur_text,
-      account_email: email, // Передаем почту в бота
-      account_pass: pass    // Передаем пароль в бота
-    };
-
-    tg.sendData(JSON.stringify(data));
+  document.getElementById("step"+num).classList.remove("hidden");
+  
+  // При возврате назад скрываем ошибки
+  if(num === 2) {
+    document.getElementById("emailError").style.display = "none";
+    document.getElementById("passError").style.display = "none";
   }
+}
+
+function validate() {
+  const email = document.getElementById("email").value.trim();
+  const password = document.getElementById("password").value.trim();
+  
+  const emailError = document.getElementById("emailError");
+  const passError = document.getElementById("passError");
+  
+  emailError.style.display = "none";
+  passError.style.display = "none";
+
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  let isValid = true;
+
+  if (!emailRegex.test(email)) {
+    emailError.style.display = "block";
+    isValid = false;
+  }
+
+  if (!password) {
+    passError.style.display = "block";
+    isValid = false;
+  }
+
+  if (!isValid) return;
+
+  userData = {
+    ...selectedPlan,
+    email,
+    password
+  };
+
+  document.getElementById("summary").innerHTML = `
+    <span style="color: var(--hint-color)">План:</span> <b>${selectedPlan.plan_name}</b><br>
+    <span style="color: var(--hint-color)">Срок:</span> <b>${selectedPlan.dur_text}</b><br>
+    <span style="color: var(--hint-color)">К оплате:</span> <b style="color: var(--accent); font-size: 18px;">${selectedPlan.price_rub} ₽</b><br><br>
+    <span style="color: var(--hint-color)">Аккаунт:</span> <b>${email}</b>
+  `;
+
+  step(3);
+}
+
+function send() {
+  // На всякий случай блокируем кнопку от даблкликов
+  const btn = document.querySelector('#step3 .main-btn');
+  btn.innerText = "Загрузка...";
+  btn.style.opacity = "0.7";
+  btn.style.pointerEvents = "none";
+  
+  tg.sendData(JSON.stringify(userData));
+}
 </script>
 
 </body>
