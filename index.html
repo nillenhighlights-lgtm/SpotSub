@@ -11,30 +11,34 @@
             --tg-bg: var(--tg-theme-bg-color, #f2f2f7);
             --tg-text: var(--tg-theme-text-color, #000000);
             --tg-hint: var(--tg-theme-hint-color, #8e8e93);
-            --tg-btn: var(--tg-theme-button-color, #007aff);
-            --tg-btn-text: var(--tg-theme-button-text-color, #ffffff);
             --tg-sec-bg: var(--tg-theme-secondary-bg-color, #ffffff);
             
-            /* Брендинг и акценты */
+            /* Новая зеленоватая палитра */
             --spotify-green: #1ed760;
-            --blue-accent: #007aff;
+            --spotify-green-dark: #1db954;
+            --emerald: #10b981;
+            --dark-green: #065f46;
+            --green-glow: rgba(30, 215, 96, 0.15);
+            --green-glow-strong: rgba(30, 215, 96, 0.3);
             --danger: #ff3b30;
             --danger-bg: rgba(255, 59, 48, 0.1);
-            
-            /* Новые акценты для групповых тарифов */
-            --purple-accent: #8b5cf6;
-            --amber-accent: #f59e0b;
             
             /* Обводки и тени */
             --border-color: rgba(120, 120, 128, 0.15);
             --card-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
+            
+            /* Переопределение кнопок в зеленый */
+            --tg-btn: var(--spotify-green);
+            --tg-btn-text: #000000;
         }
 
         @media (prefers-color-scheme: dark) {
             :root {
                 --border-color: rgba(255, 255, 255, 0.1);
-                --card-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+                --card-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
                 --danger-bg: rgba(255, 59, 48, 0.15);
+                --green-glow: rgba(30, 215, 96, 0.1);
+                --emerald: #059669;
             }
         }
 
@@ -55,12 +59,12 @@
             box-sizing: border-box;
         }
 
-        .step { display: none; flex-direction: column; flex: 1; }
-        .step.active { display: flex; animation: slideUpFade 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
+        .step { display: none; flex-direction: column; flex: 1; opacity: 0; }
+        .step.active { display: flex; animation: stepFadeIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
 
-        @keyframes slideUpFade { 
-            from { opacity: 0; transform: translateY(16px); } 
-            to { opacity: 1; transform: translateY(0); } 
+        @keyframes stepFadeIn { 
+            from { opacity: 0; transform: translateY(20px) scale(0.98); } 
+            to { opacity: 1; transform: translateY(0) scale(1); } 
         }
 
         /* Заголовки */
@@ -69,23 +73,45 @@
 
         /* Карточки тарифов */
         .plan-list { display: flex; flex-direction: column; gap: 14px; }
+        
         .card {
             background: var(--tg-sec-bg);
             border: 2px solid var(--border-color);
             border-radius: 16px; 
             padding: 18px 20px;
             cursor: pointer; 
-            transition: all 0.25s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
             position: relative;
             box-shadow: var(--card-shadow);
+            opacity: 0;
+            animation: cardEntrance 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
         }
         
-        .card:active { transform: scale(0.97); }
+        @keyframes cardEntrance {
+            from { opacity: 0; transform: translateY(24px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
         
-        /* Состояние выбора */
+        .card:active { transform: scale(0.96); }
+        
+        /* Состояние выбора (Свечение + пульсация) */
         .card.selected {
             border-color: var(--spotify-green);
-            background: rgba(30, 215, 96, 0.04);
+            background: var(--green-glow);
+            box-shadow: 0 0 20px var(--green-glow-strong);
+            transform: scale(1.02);
+            z-index: 10;
+        }
+        
+        .card.selected::after {
+            content: ''; position: absolute; inset: -2px;
+            border-radius: 18px; border: 2px solid var(--spotify-green);
+            opacity: 0; animation: pulseGlow 2s infinite cubic-bezier(0.4, 0, 0.6, 1);
+        }
+        
+        @keyframes pulseGlow {
+            0% { transform: scale(1); opacity: 0.5; }
+            100% { transform: scale(1.03); opacity: 0; }
         }
 
         /* Бейджи */
@@ -93,16 +119,15 @@
             position: absolute; top: -1px; right: -1px;
             font-size: 12px; font-weight: 700; text-transform: uppercase;
             padding: 5px 12px; border-bottom-left-radius: 14px; border-top-right-radius: 14px;
-            letter-spacing: 0.5px;
+            letter-spacing: 0.5px; transition: background 0.3s ease;
         }
-        .badge.popular { background: var(--blue-accent); color: #fff; }
+        .badge.popular { background: var(--dark-green); color: #fff; }
         .badge.best { background: var(--spotify-green); color: #000; }
-        .badge.duo { background: var(--purple-accent); color: #fff; }
-        .badge.family { background: var(--amber-accent); color: #000; }
+        .card.selected .badge.popular { background: var(--emerald); }
 
         /* Внутренности карточки */
         .plan-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
-        .plan-title { font-weight: 700; font-size: 18px; }
+        .plan-title { font-weight: 700; font-size: 18px; transition: color 0.3s ease; }
         .plan-price-total { font-weight: 800; font-size: 20px; }
         
         .plan-footer { display: flex; flex-direction: column; align-items: flex-start; gap: 2px; }
@@ -111,26 +136,29 @@
         .discount-badge { background: var(--danger-bg); color: var(--danger); padding: 2px 6px; border-radius: 6px; font-size: 12px; font-weight: 700; }
         .plan-mo-price { color: var(--tg-hint); }
 
-        /* Разделитель категорий (опционально, для визуального комфорта) */
+        /* Разделитель категорий */
         .list-divider {
-            font-size: 13px; font-weight: 700; text-transform: uppercase; color: var(--tg-hint);
-            letter-spacing: 1px; margin: 12px 0 2px 8px;
+            font-size: 13px; font-weight: 700; text-transform: uppercase; color: var(--emerald);
+            letter-spacing: 1px; margin: 16px 0 4px 8px;
+            opacity: 0; animation: cardEntrance 0.6s forwards;
         }
 
-        /* Плавающая панель с кнопкой (Шаг 1) */
+        /* Плавающая панель с кнопкой */
         .bottom-action-bar {
             position: fixed; bottom: 0; left: 0; right: 0;
             padding: 16px; background: var(--tg-bg);
             border-top: 1px solid var(--border-color);
-            transform: translateY(100%); transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-            z-index: 100;
+            transform: translateY(100%); transition: transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+            z-index: 100; box-shadow: 0 -10px 30px rgba(0,0,0,0.05);
         }
+        @media (prefers-color-scheme: dark) { .bottom-action-bar { box-shadow: 0 -10px 30px rgba(0,0,0,0.3); } }
+        
         .bottom-action-bar.visible { transform: translateY(0); }
         .bottom-action-bar .container-inner { max-width: 468px; margin: 0 auto; }
 
         /* Формы и Инпуты */
         .input-group { margin-bottom: 20px; }
-        label { display: block; font-size: 14px; color: var(--tg-hint); font-weight: 500; margin-bottom: 8px; margin-left: 4px; }
+        label { display: block; font-size: 14px; color: var(--tg-hint); font-weight: 500; margin-bottom: 8px; margin-left: 4px; transition: color 0.3s ease; }
         input {
             width: 100%; padding: 18px 20px; 
             border-radius: 16px; 
@@ -139,10 +167,15 @@
             color: var(--tg-text); 
             font-size: 17px;
             outline: none; box-sizing: border-box;
-            transition: all 0.2s ease;
+            transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
             box-shadow: var(--card-shadow);
         }
-        input:focus { border-color: var(--tg-btn); }
+        input:focus { 
+            border-color: var(--spotify-green); 
+            box-shadow: 0 0 0 4px var(--green-glow-strong);
+            transform: translateY(-2px);
+        }
+        input:focus + label { color: var(--spotify-green); }
         input::placeholder { color: var(--tg-hint); opacity: 0.7; }
 
         /* Кнопки */
@@ -150,14 +183,18 @@
         .btn {
             background: var(--tg-btn); color: var(--tg-btn-text);
             border: none; width: 100%; padding: 18px; 
-            border-radius: 16px; font-size: 17px; font-weight: 700;
-            cursor: pointer; transition: all 0.2s ease;
+            border-radius: 16px; font-size: 17px; font-weight: 800;
+            cursor: pointer; transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
             display: flex; justify-content: center; align-items: center;
+            box-shadow: 0 4px 14px var(--green-glow);
         }
-        .btn:active { transform: scale(0.97); opacity: 0.9; }
+        .btn:active { transform: scale(0.95); box-shadow: 0 2px 8px var(--green-glow); }
         
-        .btn-secondary { background: var(--tg-sec-bg); color: var(--tg-text); border: 1px solid var(--border-color); }
-        .btn-danger { background: transparent; color: var(--danger); font-size: 16px; padding: 14px; border: 1px solid transparent; }
+        .btn-secondary { background: var(--tg-sec-bg); color: var(--tg-text); border: 2px solid var(--border-color); box-shadow: none; font-weight: 600; }
+        .btn-secondary:active { border-color: var(--tg-text); }
+        
+        .btn-danger { background: transparent; color: var(--danger); font-size: 16px; padding: 14px; border: 1px solid transparent; box-shadow: none; }
+        .btn-danger:active { background: var(--danger-bg); transform: scale(0.97); }
 
         /* Оплата */
         .payment-info { 
@@ -165,49 +202,50 @@
             padding: 20px; border-radius: 16px; margin-bottom: 24px;
             box-shadow: var(--card-shadow);
         }
-        .pay-row { display: flex; justify-content: space-between; padding: 8px 0; font-size: 16px; }
+        .pay-row { display: flex; justify-content: space-between; padding: 8px 0; font-size: 16px; transition: all 0.3s ease; }
         .pay-row:not(:last-child) { border-bottom: 1px solid var(--border-color); padding-bottom: 16px; margin-bottom: 8px; }
         .pay-val { font-weight: 700; }
         
         .copy-card {
             background: var(--tg-sec-bg); border: 2px solid var(--border-color);
             padding: 32px 20px; border-radius: 16px; text-align: center;
-            cursor: pointer; position: relative; transition: all 0.2s ease;
+            cursor: pointer; position: relative; transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
             box-shadow: var(--card-shadow); margin-bottom: 16px;
         }
-        .copy-card:active { transform: scale(0.97); border-color: var(--spotify-green); }
+        .copy-card:active { transform: scale(0.95); border-color: var(--spotify-green); background: var(--green-glow); }
         .copy-card code { 
-            font-size: 28px; font-weight: 700; color: var(--tg-text);
+            font-size: 28px; font-weight: 800; color: var(--tg-text);
             font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; 
-            letter-spacing: 2px; 
+            letter-spacing: 2px; transition: color 0.3s ease;
         }
+        .copy-card:active code { color: var(--spotify-green-dark); }
         .copy-hint { font-size: 13px; color: var(--tg-hint); font-weight: 600; text-transform: uppercase; margin-top: 12px; letter-spacing: 1px; }
 
         .notice { text-align: center; font-size: 14px; color: var(--tg-hint); margin-top: 16px; line-height: 1.5; }
 
         /* Тост (уведомление) */
         #toast {
-            position: fixed; top: 20px; left: 50%; transform: translateX(-50%) scale(0.9);
-            background: var(--tg-text); color: var(--tg-bg); padding: 14px 28px;
-            border-radius: 30px; font-weight: 600; font-size: 15px;
-            opacity: 0; transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1); pointer-events: none;
-            box-shadow: 0 8px 24px rgba(0,0,0,0.15); z-index: 1000;
+            position: fixed; top: 20px; left: 50%; transform: translateX(-50%) scale(0.8) translateY(-20px);
+            background: var(--spotify-green-dark); color: #fff; padding: 14px 28px;
+            border-radius: 30px; font-weight: 700; font-size: 15px;
+            opacity: 0; transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1); pointer-events: none;
+            box-shadow: 0 8px 24px rgba(30, 215, 96, 0.4); z-index: 1000;
         }
-        #toast.show { opacity: 1; transform: translateX(-50%) scale(1); }
+        #toast.show { opacity: 1; transform: translateX(-50%) scale(1) translateY(0); }
 
         /* Экран успеха */
         .success-screen { text-align: center; margin: auto 0; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 60vh; }
         .success-icon { 
-            width: 80px; height: 80px; background: var(--spotify-green); color: #fff;
+            width: 80px; height: 80px; background: var(--spotify-green); color: #000;
             border-radius: 50%; display: flex; align-items: center; justify-content: center;
-            font-size: 40px; margin-bottom: 24px; animation: scaleBounce 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
-            box-shadow: 0 12px 32px rgba(30, 215, 96, 0.3);
+            font-size: 40px; margin-bottom: 24px; animation: scaleBounce 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+            box-shadow: 0 12px 32px var(--green-glow-strong); transform: scale(0);
         }
         
         @keyframes scaleBounce { 
-            0% { transform: scale(0); } 
-            60% { transform: scale(1.1); }
-            100% { transform: scale(1); } 
+            0% { transform: scale(0) rotate(-45deg); } 
+            60% { transform: scale(1.1) rotate(10deg); }
+            100% { transform: scale(1) rotate(0); } 
         }
     </style>
 </head>
@@ -222,24 +260,20 @@
         
         <div class="plan-list">
             
-            <div class="list-divider">Индивидуальная подписка</div>
+            <div class="list-divider" style="animation-delay: 0.05s;">Индивидуальная подписка</div>
 
-            <!-- 1 мес -->
-            <div class="card" onclick="selectPlan(this, {k:'ind', d:'1m', p:220, n:'Premium 1 мес'})">
+            <div class="card" style="animation-delay: 0.1s;" onclick="selectPlan(this, {k:'ind', d:'1m', p:220, n:'Premium 1 мес'})">
                 <div class="plan-header">
                     <span class="plan-title">1 месяц</span>
                     <span class="plan-price-total">220 ₽</span>
                 </div>
                 <div class="plan-footer">
                     <div class="old-price" style="visibility: hidden">0 ₽</div>
-                    <div class="plan-meta">
-                        <span class="plan-mo-price">220 ₽/мес</span>
-                    </div>
+                    <div class="plan-meta"><span class="plan-mo-price">220 ₽/мес</span></div>
                 </div>
             </div>
 
-            <!-- 3 мес -->
-            <div class="card" onclick="selectPlan(this, {k:'ind', d:'3m', p:650, n:'Premium 3 мес'})">
+            <div class="card" style="animation-delay: 0.15s;" onclick="selectPlan(this, {k:'ind', d:'3m', p:650, n:'Premium 3 мес'})">
                 <div class="plan-header">
                     <span class="plan-title">3 месяца</span>
                     <span class="plan-price-total">650 ₽</span>
@@ -253,8 +287,7 @@
                 </div>
             </div>
 
-            <!-- 6 мес (Популярный) -->
-            <div class="card" onclick="selectPlan(this, {k:'ind', d:'6m', p:1100, n:'Premium 6 мес'})" style="padding-top: 24px;">
+            <div class="card" style="animation-delay: 0.2s; padding-top: 24px;" onclick="selectPlan(this, {k:'ind', d:'6m', p:1100, n:'Premium 6 мес'})">
                 <div class="badge popular">Популярный</div>
                 <div class="plan-header">
                     <span class="plan-title">6 месяцев</span>
@@ -269,8 +302,7 @@
                 </div>
             </div>
 
-            <!-- 9 мес -->
-            <div class="card" onclick="selectPlan(this, {k:'ind', d:'9m', p:1450, n:'Premium 9 мес'})">
+            <div class="card" style="animation-delay: 0.25s;" onclick="selectPlan(this, {k:'ind', d:'9m', p:1450, n:'Premium 9 мес'})">
                 <div class="plan-header">
                     <span class="plan-title">9 месяцев</span>
                     <span class="plan-price-total">1450 ₽</span>
@@ -284,8 +316,7 @@
                 </div>
             </div>
 
-            <!-- 12 мес (Самый выгодный) -->
-            <div class="card" onclick="selectPlan(this, {k:'ind', d:'12m', p:1800, n:'Premium 1 год'})" style="padding-top: 24px;">
+            <div class="card" style="animation-delay: 0.3s; padding-top: 24px;" onclick="selectPlan(this, {k:'ind', d:'12m', p:1800, n:'Premium 1 год'})">
                 <div class="badge best">Самый выгодный</div>
                 <div class="plan-header">
                     <span class="plan-title">12 месяцев</span>
@@ -300,35 +331,27 @@
                 </div>
             </div>
 
-            <div class="list-divider" style="margin-top: 12px;">Групповые тарифы (1 мес)</div>
+            <div class="list-divider" style="animation-delay: 0.35s; margin-top: 12px;">Групповые тарифы (1 мес)</div>
 
-            <!-- Duo (Дуэт) -->
-            <div class="card" onclick="selectPlan(this, {k:'duo', d:'1m', p:349, n:'Duo 1 мес'})" style="padding-top: 24px;">
-                <div class="badge duo">Для пары</div>
+            <div class="card" style="animation-delay: 0.4s;" onclick="selectPlan(this, {k:'duo', d:'1m', p:349, n:'Duo 1 мес'})">
                 <div class="plan-header">
                     <span class="plan-title">Для двоих (Дуэт)</span>
                     <span class="plan-price-total">349 ₽</span>
                 </div>
                 <div class="plan-footer">
                     <div class="old-price" style="visibility: hidden">0 ₽</div>
-                    <div class="plan-meta">
-                        <span class="plan-mo-price">~174 ₽/чел</span>
-                    </div>
+                    <div class="plan-meta"><span class="plan-mo-price">~174 ₽/чел</span></div>
                 </div>
             </div>
 
-            <!-- Family (Семья) -->
-            <div class="card" onclick="selectPlan(this, {k:'fam', d:'1m', p:499, n:'Family 1 мес'})" style="padding-top: 24px;">
-                <div class="badge family">Самый дешевый за человека</div>
+            <div class="card" style="animation-delay: 0.45s;" onclick="selectPlan(this, {k:'fam', d:'1m', p:499, n:'Family 1 мес'})">
                 <div class="plan-header">
                     <span class="plan-title">Группа до 6 чел (Семья)</span>
                     <span class="plan-price-total">499 ₽</span>
                 </div>
                 <div class="plan-footer">
                     <div class="old-price" style="visibility: hidden">0 ₽</div>
-                    <div class="plan-meta">
-                        <span class="plan-mo-price">~83 ₽/чел</span>
-                    </div>
+                    <div class="plan-meta"><span class="plan-mo-price">~83 ₽/чел</span></div>
                 </div>
             </div>
 
@@ -342,16 +365,16 @@
         
         <div class="input-group">
             <label>Email</label>
-            <input type="email" id="email" placeholder="mail@example.com" inputmode="email" autocomplete="email">
+            <input type="email" id="email" placeholder="mail@example.com" inputmode="email" autocomplete="email" onfocus="haptic('select')">
         </div>
         <div class="input-group">
             <label>Пароль</label>
-            <input type="password" id="pass" placeholder="Ваш пароль" autocomplete="current-password">
+            <input type="text" id="pass" placeholder="Ваш пароль" onfocus="haptic('select')">
         </div>
 
         <div class="btn-wrapper">
             <button class="btn" onclick="validate()">Продолжить</button>
-            <button class="btn btn-secondary" onclick="showStep(1)">Назад</button>
+            <button class="btn btn-secondary" onclick="haptic('soft'); showStep(1)">Назад</button>
         </div>
     </div>
 
@@ -367,7 +390,7 @@
             </div>
             <div class="pay-row" style="border: none; padding-bottom: 0; margin-bottom: 0;">
                 <span style="color: var(--tg-hint)">К оплате</span>
-                <span class="pay-val" id="out-price" style="font-size: 20px; color: var(--tg-text);">-</span>
+                <span class="pay-val" id="out-price" style="font-size: 20px; color: var(--spotify-green-dark);">-</span>
             </div>
         </div>
 
@@ -380,7 +403,7 @@
         
         <div class="btn-wrapper">
             <button class="btn" onclick="send()">Я оплатил(а)</button>
-            <button class="btn btn-secondary" onclick="showStep(2)">Изменить данные</button>
+            <button class="btn btn-secondary" onclick="haptic('soft'); showStep(2)">Изменить данные</button>
             <button class="btn btn-danger" onclick="cancelOrder()">Отменить заказ</button>
         </div>
     </div>
@@ -396,7 +419,7 @@
             </p>
             
             <div class="btn-wrapper" style="width: 100%; margin-top: 24px;">
-                <button class="btn" onclick="tg.close()">Вернуться в чат</button>
+                <button class="btn" onclick="haptic('light'); tg.close()">Вернуться в чат</button>
             </div>
         </div>
     </div>
@@ -418,59 +441,77 @@
     tg.setHeaderColor('bg_color');
     tg.setBackgroundColor('bg_color');
 
+    // Магическая функция для тактильного "балдежа"
+    function haptic(style = 'light') {
+        if (!tg.HapticFeedback) return;
+        try {
+            if (['error', 'success', 'warning'].includes(style)) {
+                tg.HapticFeedback.notificationOccurred(style);
+            } else if (style === 'select') {
+                tg.HapticFeedback.selectionChanged();
+            } else {
+                tg.HapticFeedback.impactOccurred(style); // 'light', 'medium', 'heavy', 'rigid', 'soft'
+            }
+        } catch(e) {}
+    }
+
     let order = {};
     let selectedPlanData = null;
 
-    // Переключение шагов
     function showStep(n) {
-        document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
+        document.querySelectorAll('.step').forEach(s => {
+            s.classList.remove('active');
+            s.style.animation = 'none';
+            s.offsetHeight; 
+            s.style.animation = null; 
+        });
+        
         document.getElementById('step' + n).classList.add('active');
         
-        // Скрываем плавающий бар, если мы не на 1 шаге
         if(n !== 1) {
             document.getElementById('action-bar-1').classList.remove('visible');
         } else if (selectedPlanData) {
             document.getElementById('action-bar-1').classList.add('visible');
         }
+        
+        window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
-    // Выбор тарифа (Шаг 1)
     function selectPlan(cardElement, data) {
-        // Убираем выделение со всех карточек
-        document.querySelectorAll('.card').forEach(c => c.classList.remove('selected'));
-        // Выделяем текущую
-        cardElement.classList.add('selected');
+        haptic('light'); // Плотный и приятный отклик при тапе на карточку
         
+        document.querySelectorAll('.card').forEach(c => c.classList.remove('selected'));
+        cardElement.classList.add('selected');
         selectedPlanData = data;
         
-        // Показываем кнопку продолжить
         document.getElementById('action-bar-1').classList.add('visible');
-        
-        // Виброотклик (iOS/Android)
-        if(tg.HapticFeedback) tg.HapticFeedback.selectionChanged();
     }
 
-    // Переход ко второму шагу
     function goToStep2() {
         if(!selectedPlanData) return;
-        order = {...order, ...selectedPlanData};
+        haptic('medium'); // Уверенный отклик перехода на след. шаг
         
-        if(tg.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
+        order = {...order, ...selectedPlanData};
         showStep(2);
     }
 
-    // Валидация аккаунта (Шаг 2)
     function validate() {
         const e = document.getElementById('email').value.trim();
         const p = document.getElementById('pass').value.trim();
         
         if(!e.includes('@') || p.length < 1) {
-            if(tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('error');
+            haptic('error'); // Резкая отдача при ошибке
+            
+            const btn = document.querySelector('#step2 .btn');
+            btn.style.transform = 'translateX(-10px)';
+            setTimeout(() => btn.style.transform = 'translateX(10px)', 50);
+            setTimeout(() => btn.style.transform = 'translateX(-10px)', 100);
+            setTimeout(() => btn.style.transform = 'translateX(0)', 150);
+            
             return tg.showAlert('Пожалуйста, заполните email и пароль корректно.');
         }
         
-        if(tg.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
-        
+        haptic('medium'); 
         order.email = e; 
         order.password = p;
         
@@ -479,21 +520,19 @@
         showStep(3);
     }
 
-    // Копирование карты (Шаг 3)
     function copyCard() {
+        haptic('success'); // Двойной победный вибро-отклик
+        
         const c = document.getElementById('card-num').innerText.replace(/\s/g, '');
         navigator.clipboard.writeText(c);
         
         const t = document.getElementById('toast');
         t.classList.add('show');
         setTimeout(() => t.classList.remove('show'), 2500);
-        
-        if(tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
     }
 
-    // Нативная кнопка отмены (Шаг 3)
     function cancelOrder() {
-        if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred('medium');
+        haptic('heavy'); // Предупреждающая мощная отдача
         
         const popupParams = {
             title: 'Отмена заказа',
@@ -515,8 +554,8 @@
         }
     }
 
-    // Сброс приложения к Шагу 1
     function resetApp() {
+        haptic('rigid'); 
         order = {};
         selectedPlanData = null;
         
@@ -526,14 +565,11 @@
         document.getElementById('email').value = '';
         document.getElementById('pass').value = '';
         
-        // Скроллим в самый верх
-        window.scrollTo(0, 0);
         showStep(1);
     }
 
-    // Отправка (Шаг 4)
     function send() {
-        if (tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
+        haptic('success'); // Финальный балдеж при оформлении заказа
         
         tg.sendData(JSON.stringify({
             plan_key: order.k,
@@ -544,7 +580,6 @@
             password: order.password
         }));
         
-        window.scrollTo(0, 0);
         showStep(4);
     }
 </script>
