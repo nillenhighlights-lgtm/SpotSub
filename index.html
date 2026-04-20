@@ -11,26 +11,26 @@
             --tg-bg: var(--tg-theme-bg-color, #f2f2f7);
             --tg-text: var(--tg-theme-text-color, #000000);
             --tg-hint: var(--tg-theme-hint-color, #8e8e93);
-            --tg-btn: var(--tg-theme-button-color, #000000);
+            --tg-btn: var(--tg-theme-button-color, #007aff);
             --tg-btn-text: var(--tg-theme-button-text-color, #ffffff);
             --tg-sec-bg: var(--tg-theme-secondary-bg-color, #ffffff);
             
-            /* Glassmorphism переменные */
-            --glass-bg: rgba(120, 120, 128, 0.08);
-            --glass-border: rgba(120, 120, 128, 0.12);
-            --glass-highlight: rgba(120, 120, 128, 0.15);
-            
-            --success: #34c759;
+            /* Брендинг и акценты */
+            --spotify-green: #1ed760;
+            --blue-accent: #007aff;
             --danger: #ff3b30;
-            --accent: #1ed760; /* Spotify Green */
+            --danger-bg: rgba(255, 59, 48, 0.1);
+            
+            /* Обводки и тени */
+            --border-color: rgba(120, 120, 128, 0.15);
+            --card-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
         }
 
-        /* Адаптация эффекта стекла для темной темы */
         @media (prefers-color-scheme: dark) {
             :root {
-                --glass-bg: rgba(255, 255, 255, 0.06);
-                --glass-border: rgba(255, 255, 255, 0.1);
-                --glass-highlight: rgba(255, 255, 255, 0.12);
+                --border-color: rgba(255, 255, 255, 0.1);
+                --card-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+                --danger-bg: rgba(255, 59, 48, 0.15);
             }
         }
 
@@ -41,10 +41,12 @@
             color: var(--tg-text);
             -webkit-tap-highlight-color: transparent;
             line-height: 1.5;
+            user-select: none;
         }
 
+        /* Контейнер и шаги */
         .container {
-            max-width: 500px; margin: 0 auto; padding: 20px 16px 32px;
+            max-width: 500px; margin: 0 auto; padding: 24px 16px 120px;
             min-height: 100vh; display: flex; flex-direction: column;
             box-sizing: border-box;
         }
@@ -53,191 +55,239 @@
         .step.active { display: flex; animation: slideUpFade 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
 
         @keyframes slideUpFade { 
-            from { opacity: 0; transform: translateY(12px); } 
+            from { opacity: 0; transform: translateY(16px); } 
             to { opacity: 1; transform: translateY(0); } 
         }
 
-        h2 { font-size: 28px; font-weight: 700; margin: 0 0 6px 0; letter-spacing: -0.5px; }
-        .desc { color: var(--tg-hint); font-size: 15px; margin-top: 0; margin-bottom: 24px; font-weight: 400; }
+        /* Заголовки */
+        h2 { font-size: 28px; font-weight: 800; margin: 0 0 8px 0; letter-spacing: -0.5px; }
+        .desc { color: var(--tg-hint); font-size: 16px; margin-top: 0; margin-bottom: 24px; font-weight: 400; }
 
         /* Карточки тарифов */
-        .plan-list { display: flex; flex-direction: column; gap: 12px; }
+        .plan-list { display: flex; flex-direction: column; gap: 14px; }
         .card {
-            background: var(--glass-bg);
-            border: 1px solid var(--glass-border);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            border-radius: 20px; 
-            padding: 16px 20px;
+            background: var(--tg-sec-bg);
+            border: 2px solid var(--border-color);
+            border-radius: 16px; 
+            padding: 18px 20px;
             cursor: pointer; 
-            transition: all 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            transition: all 0.25s cubic-bezier(0.25, 0.46, 0.45, 0.94);
             position: relative;
-            overflow: hidden;
+            box-shadow: var(--card-shadow);
         }
         
-        @media (hover: hover) { .card:hover { background: var(--glass-highlight); } }
-        .card:active { transform: scale(0.96); background: var(--glass-highlight); }
+        .card:active { transform: scale(0.97); }
         
-        .card.popular { 
-            border: 1.5px solid var(--accent); 
-            background: rgba(30, 215, 96, 0.05);
+        /* Состояние выбора */
+        .card.selected {
+            border-color: var(--spotify-green);
+            background: rgba(30, 215, 96, 0.04);
         }
 
+        /* Бейджи */
         .badge {
-            position: absolute; top: 0; right: 0;
-            background: var(--accent); color: #000;
-            font-size: 11px; font-weight: 700; text-transform: uppercase;
-            padding: 4px 10px; border-bottom-left-radius: 12px;
+            position: absolute; top: -1px; right: -1px;
+            font-size: 12px; font-weight: 700; text-transform: uppercase;
+            padding: 5px 12px; border-bottom-left-radius: 14px; border-top-right-radius: 14px;
+            letter-spacing: 0.5px;
         }
+        .badge.popular { background: var(--blue-accent); color: #fff; }
+        .badge.best { background: var(--spotify-green); color: #000; }
 
-        .card-top { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 4px; }
-        .plan-title { font-weight: 600; font-size: 17px; }
-        .plan-price-mo { font-size: 15px; font-weight: 600; color: var(--accent); }
+        /* Внутренности карточки */
+        .plan-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+        .plan-title { font-weight: 700; font-size: 18px; }
+        .plan-price-total { font-weight: 800; font-size: 20px; }
         
-        .card-bottom { display: flex; justify-content: space-between; align-items: center; }
-        .price-details { display: flex; align-items: center; gap: 8px; font-size: 13px; }
-        .price-old { text-decoration: line-through; color: var(--tg-hint); }
-        .price-discount { background: var(--danger); color: white; padding: 2px 6px; border-radius: 6px; font-weight: 600; font-size: 11px; }
-        .plan-price-total { font-weight: 700; font-size: 18px; }
+        .plan-footer { display: flex; flex-direction: column; align-items: flex-start; gap: 2px; }
+        .old-price { text-decoration: line-through; color: var(--tg-hint); font-size: 14px; font-weight: 500; height: 21px; }
+        .plan-meta { display: flex; align-items: center; gap: 6px; font-size: 14px; font-weight: 600; color: var(--tg-hint); }
+        .discount-badge { background: var(--danger-bg); color: var(--danger); padding: 2px 6px; border-radius: 6px; font-size: 12px; font-weight: 700; }
+        .plan-mo-price { color: var(--tg-hint); }
+
+        /* Плавающая панель с кнопкой (Шаг 1) */
+        .bottom-action-bar {
+            position: fixed; bottom: 0; left: 0; right: 0;
+            padding: 16px; background: var(--tg-bg);
+            border-top: 1px solid var(--border-color);
+            transform: translateY(100%); transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            z-index: 100;
+        }
+        .bottom-action-bar.visible { transform: translateY(0); }
+        .bottom-action-bar .container-inner { max-width: 468px; margin: 0 auto; }
 
         /* Формы и Инпуты */
-        .input-group { margin-bottom: 16px; }
-        label { display: block; font-size: 13px; color: var(--tg-hint); font-weight: 500; margin-bottom: 6px; margin-left: 4px; }
+        .input-group { margin-bottom: 20px; }
+        label { display: block; font-size: 14px; color: var(--tg-hint); font-weight: 500; margin-bottom: 8px; margin-left: 4px; }
         input {
-            width: 100%; padding: 16px; 
+            width: 100%; padding: 18px 20px; 
             border-radius: 16px; 
-            border: 1px solid var(--glass-border);
-            background: var(--glass-bg); 
+            border: 2px solid var(--border-color);
+            background: var(--tg-sec-bg); 
             color: var(--tg-text); 
-            font-size: 16px;
+            font-size: 17px;
             outline: none; box-sizing: border-box;
             transition: all 0.2s ease;
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
+            box-shadow: var(--card-shadow);
         }
-        input:focus { border-color: var(--accent); background: var(--tg-sec-bg); box-shadow: 0 0 0 3px rgba(30, 215, 96, 0.15); }
-        input::placeholder { color: var(--tg-hint); opacity: 0.6; }
+        input:focus { border-color: var(--tg-btn); }
+        input::placeholder { color: var(--tg-hint); opacity: 0.7; }
 
         /* Кнопки */
-        .btn-wrapper { margin-top: auto; display: flex; flex-direction: column; gap: 10px; padding-top: 24px; }
+        .btn-wrapper { margin-top: auto; display: flex; flex-direction: column; gap: 12px; padding-top: 32px; }
         .btn {
             background: var(--tg-btn); color: var(--tg-btn-text);
-            border: none; width: 100%; padding: 16px; 
-            border-radius: 16px; font-size: 16px; font-weight: 600;
-            cursor: pointer; transition: all 0.15s ease;
+            border: none; width: 100%; padding: 18px; 
+            border-radius: 16px; font-size: 17px; font-weight: 700;
+            cursor: pointer; transition: all 0.2s ease;
             display: flex; justify-content: center; align-items: center;
         }
-        .btn:active { transform: scale(0.96); opacity: 0.9; }
+        .btn:active { transform: scale(0.97); opacity: 0.9; }
         
-        .btn-secondary { background: var(--glass-bg); color: var(--tg-text); border: 1px solid var(--glass-border); }
-        .btn-danger { background: transparent; color: var(--danger); font-size: 15px; padding: 12px; }
+        .btn-secondary { background: var(--tg-sec-bg); color: var(--tg-text); border: 1px solid var(--border-color); }
+        .btn-danger { background: transparent; color: var(--danger); font-size: 16px; padding: 14px; border: 1px solid transparent; }
 
         /* Оплата */
         .payment-info { 
-            background: var(--glass-bg); border: 1px solid var(--glass-border);
-            padding: 16px 20px; border-radius: 16px; margin-bottom: 24px;
+            background: var(--tg-sec-bg); border: 1px solid var(--border-color);
+            padding: 20px; border-radius: 16px; margin-bottom: 24px;
+            box-shadow: var(--card-shadow);
         }
-        .pay-row { display: flex; justify-content: space-between; padding: 6px 0; font-size: 15px; }
-        .pay-row:not(:last-child) { border-bottom: 1px solid var(--glass-border); padding-bottom: 12px; margin-bottom: 6px; }
-        .pay-val { font-weight: 600; }
+        .pay-row { display: flex; justify-content: space-between; padding: 8px 0; font-size: 16px; }
+        .pay-row:not(:last-child) { border-bottom: 1px solid var(--border-color); padding-bottom: 16px; margin-bottom: 8px; }
+        .pay-val { font-weight: 700; }
         
         .copy-card {
-            background: var(--tg-sec-bg); border: 1.5px dashed var(--tg-hint);
-            padding: 24px 20px; border-radius: 16px; text-align: center;
+            background: var(--tg-sec-bg); border: 2px solid var(--border-color);
+            padding: 32px 20px; border-radius: 16px; text-align: center;
             cursor: pointer; position: relative; transition: all 0.2s ease;
+            box-shadow: var(--card-shadow); margin-bottom: 16px;
         }
-        .copy-card:active { transform: scale(0.96); border-color: var(--accent); background: var(--glass-bg); }
-        .copy-card code { font-size: 24px; font-weight: 700; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; letter-spacing: 2px; }
-        .copy-badge { position: absolute; top: -10px; right: 20px; background: var(--tg-text); color: var(--tg-bg); font-size: 11px; padding: 4px 10px; border-radius: 8px; font-weight: 700; }
+        .copy-card:active { transform: scale(0.97); border-color: var(--spotify-green); }
+        .copy-card code { 
+            font-size: 28px; font-weight: 700; color: var(--tg-text);
+            font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; 
+            letter-spacing: 2px; 
+        }
+        .copy-hint { font-size: 13px; color: var(--tg-hint); font-weight: 600; text-transform: uppercase; margin-top: 12px; letter-spacing: 1px; }
 
-        .notice { text-align: center; font-size: 13px; color: var(--tg-hint); margin-top: 16px; line-height: 1.4; }
+        .notice { text-align: center; font-size: 14px; color: var(--tg-hint); margin-top: 16px; line-height: 1.5; }
 
+        /* Тост (уведомление) */
         #toast {
-            position: fixed; bottom: 40px; left: 50%; transform: translateX(-50%) scale(0.9);
-            background: var(--tg-text); color: var(--tg-bg); padding: 12px 24px;
-            border-radius: 30px; font-weight: 600; font-size: 14px;
+            position: fixed; top: 20px; left: 50%; transform: translateX(-50%) scale(0.9);
+            background: var(--tg-text); color: var(--tg-bg); padding: 14px 28px;
+            border-radius: 30px; font-weight: 600; font-size: 15px;
             opacity: 0; transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1); pointer-events: none;
-            box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+            box-shadow: 0 8px 24px rgba(0,0,0,0.15); z-index: 1000;
         }
         #toast.show { opacity: 1; transform: translateX(-50%) scale(1); }
 
-        .success-screen { text-align: center; margin: auto 0; }
-        .success-icon { font-size: 72px; margin-bottom: 20px; animation: scaleIn 0.5s cubic-bezier(0.16, 1, 0.3, 1); }
+        /* Экран успеха */
+        .success-screen { text-align: center; margin: auto 0; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 60vh; }
+        .success-icon { 
+            width: 80px; height: 80px; background: var(--spotify-green); color: #fff;
+            border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            font-size: 40px; margin-bottom: 24px; animation: scaleBounce 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+            box-shadow: 0 12px 32px rgba(30, 215, 96, 0.3);
+        }
         
-        @keyframes scaleIn { from { transform: scale(0); } to { transform: scale(1); } }
+        @keyframes scaleBounce { 
+            0% { transform: scale(0); } 
+            60% { transform: scale(1.1); }
+            100% { transform: scale(1); } 
+        }
     </style>
 </head>
 <body>
 
 <div class="container">
     
+    <!-- Шаг 1: Выбор тарифа -->
     <div id="step1" class="step active">
         <h2>Spotify Premium</h2>
         <p class="desc">Выберите подходящий тарифный план</p>
         
         <div class="plan-list">
-            <div class="card" onclick="next(2, {k:'ind', d:'1m', p:220, n:'Individual 1 мес'})">
-                <div class="card-top">
-                    <span class="plan-title">Individual ⚡️</span>
-                    <span class="plan-price-mo">220 ₽/мес</span>
-                </div>
-                <div class="card-bottom">
-                    <span style="color: var(--tg-hint); font-size: 13px;">1 месяц</span>
+            <!-- 1 мес -->
+            <div class="card" onclick="selectPlan(this, {k:'ind', d:'1m', p:220, n:'Premium 1 мес'})">
+                <div class="plan-header">
+                    <span class="plan-title">1 месяц</span>
                     <span class="plan-price-total">220 ₽</span>
                 </div>
+                <div class="plan-footer">
+                    <div class="old-price" style="visibility: hidden">0 ₽</div>
+                    <div class="plan-meta">
+                        <span class="plan-mo-price">220 ₽/мес</span>
+                    </div>
+                </div>
             </div>
 
-            <div class="card" onclick="next(2, {k:'ind', d:'6m', p:1100, n:'Individual 6 мес'})">
-                <div class="card-top">
-                    <span class="plan-title">Individual</span>
-                    <span class="plan-price-mo">183 ₽/мес</span>
+            <!-- 3 мес -->
+            <div class="card" onclick="selectPlan(this, {k:'ind', d:'3m', p:650, n:'Premium 3 мес'})">
+                <div class="plan-header">
+                    <span class="plan-title">3 месяца</span>
+                    <span class="plan-price-total">650 ₽</span>
                 </div>
-                <div class="card-bottom">
-                    <div class="price-details">
-                        <span class="price-old">1320 ₽</span>
-                        <span class="price-discount">–17%</span>
+                <div class="plan-footer">
+                    <div class="old-price">660 ₽</div>
+                    <div class="plan-meta">
+                        <span class="discount-badge">–2%</span>
+                        <span class="plan-mo-price">• 216 ₽/мес</span>
                     </div>
+                </div>
+            </div>
+
+            <!-- 6 мес (Популярный) -->
+            <div class="card" onclick="selectPlan(this, {k:'ind', d:'6m', p:1100, n:'Premium 6 мес'})" style="padding-top: 24px;">
+                <div class="badge popular">Популярный</div>
+                <div class="plan-header">
+                    <span class="plan-title">6 месяцев</span>
                     <span class="plan-price-total">1100 ₽</span>
                 </div>
+                <div class="plan-footer">
+                    <div class="old-price">1320 ₽</div>
+                    <div class="plan-meta">
+                        <span class="discount-badge">–17%</span>
+                        <span class="plan-mo-price">• 183 ₽/мес</span>
+                    </div>
+                </div>
             </div>
 
-            <div class="card popular" onclick="next(2, {k:'ind', d:'12m', p:1800, n:'Individual 1 год'})">
-                <div class="badge">Выгодно</div>
-                <div class="card-top">
-                    <span class="plan-title">Individual</span>
-                    <span class="plan-price-mo">150 ₽/мес</span>
+            <!-- 9 мес -->
+            <div class="card" onclick="selectPlan(this, {k:'ind', d:'9m', p:1450, n:'Premium 9 мес'})">
+                <div class="plan-header">
+                    <span class="plan-title">9 месяцев</span>
+                    <span class="plan-price-total">1450 ₽</span>
                 </div>
-                <div class="card-bottom">
-                    <div class="price-details">
-                        <span class="price-old">2640 ₽</span>
-                        <span class="price-discount">–32%</span>
+                <div class="plan-footer">
+                    <div class="old-price">1980 ₽</div>
+                    <div class="plan-meta">
+                        <span class="discount-badge">–27%</span>
+                        <span class="plan-mo-price">• 161 ₽/мес</span>
                     </div>
+                </div>
+            </div>
+
+            <!-- 12 мес (Самый выгодный) -->
+            <div class="card" onclick="selectPlan(this, {k:'ind', d:'12m', p:1800, n:'Premium 1 год'})" style="padding-top: 24px;">
+                <div class="badge best">Самый выгодный</div>
+                <div class="plan-header">
+                    <span class="plan-title">12 месяцев</span>
                     <span class="plan-price-total">1800 ₽</span>
                 </div>
-            </div>
-
-            <div class="card" onclick="next(2, {k:'duo', d:'1m', p:349, n:'Duo (2 аккаунта)'})">
-                <div class="card-top">
-                    <span class="plan-title">Duo 👥</span>
-                </div>
-                <div class="card-bottom">
-                    <span style="color: var(--tg-hint); font-size: 13px;">1 месяц</span>
-                    <span class="plan-price-total">349 ₽</span>
-                </div>
-            </div>
-
-            <div class="card" onclick="next(2, {k:'fam', d:'1m', p:499, n:'Family (6 чел)'})">
-                <div class="card-top">
-                    <span class="plan-title">Family 🏠</span>
-                </div>
-                <div class="card-bottom">
-                    <span style="color: var(--tg-hint); font-size: 13px;">1 месяц</span>
-                    <span class="plan-price-total">499 ₽</span>
+                <div class="plan-footer">
+                    <div class="old-price">2640 ₽</div>
+                    <div class="plan-meta">
+                        <span class="discount-badge">–32%</span>
+                        <span class="plan-mo-price">• 150 ₽/мес</span>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 
+    <!-- Шаг 2: Данные аккаунта -->
     <div id="step2" class="step">
         <h2>Аккаунт</h2>
         <p class="desc">Введите данные от вашего Spotify</p>
@@ -248,7 +298,7 @@
         </div>
         <div class="input-group">
             <label>Пароль</label>
-            <input type="text" id="pass" placeholder="Ваш пароль" autocomplete="current-password">
+            <input type="password" id="pass" placeholder="Ваш пароль" autocomplete="current-password">
         </div>
 
         <div class="btn-wrapper">
@@ -257,27 +307,28 @@
         </div>
     </div>
 
+    <!-- Шаг 3: Оплата -->
     <div id="step3" class="step">
         <h2>Оплата</h2>
         <p class="desc">Переведите точную сумму на карту ниже</p>
         
         <div class="payment-info">
             <div class="pay-row">
-                <span>Тариф</span>
+                <span style="color: var(--tg-hint)">Тариф</span>
                 <span class="pay-val" id="out-plan">-</span>
             </div>
-            <div class="pay-row">
-                <span>Сумма к оплате</span>
-                <span class="pay-val" id="out-price" style="color: var(--accent);">-</span>
+            <div class="pay-row" style="border: none; padding-bottom: 0; margin-bottom: 0;">
+                <span style="color: var(--tg-hint)">К оплате</span>
+                <span class="pay-val" id="out-price" style="font-size: 20px; color: var(--tg-text);">-</span>
             </div>
         </div>
 
         <div class="copy-card" onclick="copyCard()">
-            <span class="copy-badge">НАЖМИТЕ</span>
             <code id="card-num">2204 3203 8736 6430</code>
+            <div class="copy-hint">Нажмите, чтобы скопировать</div>
         </div>
 
-        <p class="notice">После перевода обязательно отправьте <b>скриншот чека</b> в этот чат для подтверждения.</p>
+        <p class="notice">После перевода <b>обязательно</b> отправьте скриншот чека в этот чат для подтверждения.</p>
         
         <div class="btn-wrapper">
             <button class="btn" onclick="send()">Я оплатил(а)</button>
@@ -286,13 +337,17 @@
         </div>
     </div>
 
+    <!-- Шаг 4: Успех -->
     <div id="step4" class="step">
         <div class="success-screen">
-            <div class="success-icon">✅</div>
-            <h2>Заявка отправлена</h2>
-            <p class="desc" style="margin-top: 12px;">Бот ждет ваш скриншот чека.<br>Активация займет от 5 до 30 минут.</p>
+            <div class="success-icon">✓</div>
+            <h2>Заявка создана</h2>
+            <p class="desc" style="margin-top: 12px; font-size: 16px;">
+                Пожалуйста, отправьте <b>скриншот чека</b> боту.<br><br>
+                Активация подписки занимает<br>от 5 до 30 минут.
+            </p>
             
-            <div class="btn-wrapper" style="margin-top: 40px;">
+            <div class="btn-wrapper" style="width: 100%; margin-top: 24px;">
                 <button class="btn" onclick="tg.close()">Вернуться в чат</button>
             </div>
         </div>
@@ -300,27 +355,63 @@
 
 </div>
 
-<div id="toast">Скопировано!</div>
+<!-- Плавающая кнопка для Шага 1 -->
+<div class="bottom-action-bar" id="action-bar-1">
+    <div class="container-inner">
+        <button class="btn" onclick="goToStep2()">Продолжить</button>
+    </div>
+</div>
+
+<div id="toast">Номер карты скопирован</div>
 
 <script>
     const tg = window.Telegram.WebApp;
     tg.expand();
-    // Сообщаем Telegram, что мы хотим использовать цвета темы
     tg.setHeaderColor('bg_color');
     tg.setBackgroundColor('bg_color');
 
     let order = {};
+    let selectedPlanData = null;
 
+    // Переключение шагов
     function showStep(n) {
         document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
         document.getElementById('step' + n).classList.add('active');
+        
+        // Скрываем плавающий бар, если мы не на 1 шаге
+        if(n !== 1) {
+            document.getElementById('action-bar-1').classList.remove('visible');
+        } else if (selectedPlanData) {
+            document.getElementById('action-bar-1').classList.add('visible');
+        }
     }
 
-    function next(s, data) {
-        if(data) order = {...order, ...data};
-        showStep(s);
+    // Выбор тарифа (Шаг 1)
+    function selectPlan(cardElement, data) {
+        // Убираем выделение со всех карточек
+        document.querySelectorAll('.card').forEach(c => c.classList.remove('selected'));
+        // Выделяем текущую
+        cardElement.classList.add('selected');
+        
+        selectedPlanData = data;
+        
+        // Показываем кнопку продолжить
+        document.getElementById('action-bar-1').classList.add('visible');
+        
+        // Виброотклик (iOS/Android)
+        if(tg.HapticFeedback) tg.HapticFeedback.selectionChanged();
     }
 
+    // Переход ко второму шагу
+    function goToStep2() {
+        if(!selectedPlanData) return;
+        order = {...order, ...selectedPlanData};
+        
+        if(tg.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
+        showStep(2);
+    }
+
+    // Валидация аккаунта (Шаг 2)
     function validate() {
         const e = document.getElementById('email').value.trim();
         const p = document.getElementById('pass').value.trim();
@@ -330,47 +421,67 @@
             return tg.showAlert('Пожалуйста, заполните email и пароль корректно.');
         }
         
-        order.email = e; order.password = p;
+        if(tg.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
+        
+        order.email = e; 
+        order.password = p;
+        
         document.getElementById('out-plan').innerText = order.n;
         document.getElementById('out-price').innerText = order.p + ' ₽';
         showStep(3);
     }
 
+    // Копирование карты (Шаг 3)
     function copyCard() {
         const c = document.getElementById('card-num').innerText.replace(/\s/g, '');
         navigator.clipboard.writeText(c);
         
         const t = document.getElementById('toast');
         t.classList.add('show');
-        setTimeout(() => t.classList.remove('show'), 2000);
+        setTimeout(() => t.classList.remove('show'), 2500);
         
         if(tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
     }
 
-    // Новая функция отмены заказа
+    // Нативная кнопка отмены (Шаг 3)
     function cancelOrder() {
         if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred('medium');
         
-        const confirmMessage = 'Вы уверены, что хотите отменить заказ? Введенные данные будут очищены.';
-        
-        // Используем нативное окно Telegram, если доступно
-        if (tg.showConfirm) {
-            tg.showConfirm(confirmMessage, function(confirmed) {
-                if (confirmed) resetApp();
+        const popupParams = {
+            title: 'Отмена заказа',
+            message: 'Вы уверены, что хотите отменить заказ? Введенные данные будут сброшены.',
+            buttons:[
+                { id: 'yes', type: 'destructive', text: 'Да, отменить' },
+                { id: 'no', type: 'cancel', text: 'Нет' }
+            ]
+        };
+
+        if (tg.showPopup) {
+            tg.showPopup(popupParams, function(buttonId) {
+                if (buttonId === 'yes') resetApp();
             });
         } else {
-            // Фолбэк для старых версий/браузеров
-            if (confirm(confirmMessage)) resetApp();
+            if (confirm('Вы уверены, что хотите отменить заказ? Введенные данные будут очищены.')) {
+                resetApp();
+            }
         }
     }
 
+    // Сброс приложения к Шагу 1
     function resetApp() {
         order = {};
+        selectedPlanData = null;
+        
+        document.querySelectorAll('.card').forEach(c => c.classList.remove('selected'));
+        document.getElementById('action-bar-1').classList.remove('visible');
+        
         document.getElementById('email').value = '';
         document.getElementById('pass').value = '';
+        
         showStep(1);
     }
 
+    // Отправка (Шаг 4)
     function send() {
         if (tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
         
@@ -382,6 +493,7 @@
             email: order.email,
             password: order.password
         }));
+        
         showStep(4);
     }
 </script>
