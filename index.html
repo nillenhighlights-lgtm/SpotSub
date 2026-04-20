@@ -21,6 +21,10 @@
             --danger: #ff3b30;
             --danger-bg: rgba(255, 59, 48, 0.1);
             
+            /* Новые акценты для групповых тарифов */
+            --purple-accent: #8b5cf6;
+            --amber-accent: #f59e0b;
+            
             /* Обводки и тени */
             --border-color: rgba(120, 120, 128, 0.15);
             --card-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
@@ -93,6 +97,8 @@
         }
         .badge.popular { background: var(--blue-accent); color: #fff; }
         .badge.best { background: var(--spotify-green); color: #000; }
+        .badge.duo { background: var(--purple-accent); color: #fff; }
+        .badge.family { background: var(--amber-accent); color: #000; }
 
         /* Внутренности карточки */
         .plan-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
@@ -104,6 +110,12 @@
         .plan-meta { display: flex; align-items: center; gap: 6px; font-size: 14px; font-weight: 600; color: var(--tg-hint); }
         .discount-badge { background: var(--danger-bg); color: var(--danger); padding: 2px 6px; border-radius: 6px; font-size: 12px; font-weight: 700; }
         .plan-mo-price { color: var(--tg-hint); }
+
+        /* Разделитель категорий (опционально, для визуального комфорта) */
+        .list-divider {
+            font-size: 13px; font-weight: 700; text-transform: uppercase; color: var(--tg-hint);
+            letter-spacing: 1px; margin: 12px 0 2px 8px;
+        }
 
         /* Плавающая панель с кнопкой (Шаг 1) */
         .bottom-action-bar {
@@ -209,6 +221,9 @@
         <p class="desc">Выберите подходящий тарифный план</p>
         
         <div class="plan-list">
+            
+            <div class="list-divider">Индивидуальная подписка</div>
+
             <!-- 1 мес -->
             <div class="card" onclick="selectPlan(this, {k:'ind', d:'1m', p:220, n:'Premium 1 мес'})">
                 <div class="plan-header">
@@ -284,6 +299,39 @@
                     </div>
                 </div>
             </div>
+
+            <div class="list-divider" style="margin-top: 12px;">Групповые тарифы (1 мес)</div>
+
+            <!-- Duo (Дуэт) -->
+            <div class="card" onclick="selectPlan(this, {k:'duo', d:'1m', p:349, n:'Duo 1 мес'})" style="padding-top: 24px;">
+                <div class="badge duo">Для пары</div>
+                <div class="plan-header">
+                    <span class="plan-title">Для двоих (Дуэт)</span>
+                    <span class="plan-price-total">349 ₽</span>
+                </div>
+                <div class="plan-footer">
+                    <div class="old-price" style="visibility: hidden">0 ₽</div>
+                    <div class="plan-meta">
+                        <span class="plan-mo-price">~174 ₽/чел</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Family (Семья) -->
+            <div class="card" onclick="selectPlan(this, {k:'fam', d:'1m', p:499, n:'Family 1 мес'})" style="padding-top: 24px;">
+                <div class="badge family">Самый дешевый за человека</div>
+                <div class="plan-header">
+                    <span class="plan-title">Группа до 6 чел (Семья)</span>
+                    <span class="plan-price-total">499 ₽</span>
+                </div>
+                <div class="plan-footer">
+                    <div class="old-price" style="visibility: hidden">0 ₽</div>
+                    <div class="plan-meta">
+                        <span class="plan-mo-price">~83 ₽/чел</span>
+                    </div>
+                </div>
+            </div>
+
         </div>
     </div>
 
@@ -478,6 +526,8 @@
         document.getElementById('email').value = '';
         document.getElementById('pass').value = '';
         
+        // Скроллим в самый верх
+        window.scrollTo(0, 0);
         showStep(1);
     }
 
@@ -494,6 +544,7 @@
             password: order.password
         }));
         
+        window.scrollTo(0, 0);
         showStep(4);
     }
 </script>
